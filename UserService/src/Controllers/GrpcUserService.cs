@@ -15,13 +15,28 @@ public class GrpcUserService : UserServiceBase
         _logger = logger;
     }
 
-    public override Task<UserIdResponse> CreateUser(User request, ServerCallContext context)
+    public override Task<UserId> CreateUser(CreateUserRequest request, ServerCallContext context)
     {
-        _logger.LogInformation("Saying hello to {Name}", request.Name);
-
-        return Task.FromResult(new UserIdResponse
-        {
-            Id = 0
-        });
+        throw new NotImplementedException();
     }
+    
+    public override Task<User> GetUserById(UserId request, ServerCallContext context)
+    {
+        throw new NotImplementedException();
+    }
+    
+    public override Task<User> GetUserByName(UserFullName request, ServerCallContext context)
+    {
+        throw new NotImplementedException();
+    }
+    
+    public override Task<UserId> UpdateUser(UpdateUserRequest request, ServerCallContext context)
+    {
+        throw new NotImplementedException();
+    } 
+    
+    public override Task<UserId> DeleteUser(UserId request, ServerCallContext context)
+    {
+        throw new NotImplementedException();
+    } 
 }
