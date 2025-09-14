@@ -88,14 +88,6 @@ public class UserRepository : IUserRepository
             new { Id = id });
     }
 
-    public async Task<List<UserModel>> GetAllUsersAsync()
-    {
-        await using var connection = new NpgsqlConnection(ConnectionString);
-
-        var users = await connection.QueryAsync<UserModel>(SelectQuery);
-        return users.ToList();
-    }
-
     public async Task<UserModel> GetUserByNameAsync(string name, string surname)
     {
         await using var connection = new NpgsqlConnection(ConnectionString);

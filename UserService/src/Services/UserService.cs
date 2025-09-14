@@ -52,7 +52,7 @@ public class UserService : IUserService
         return await _userRepository.UpdateUserAsync(dto);
     }
 
-    public async Task<int> DeleteById(int userId)
+    public async Task<int> Delete(int userId)
     {
         var deletedId = await _userRepository.DeleteUserAsync(userId);
 
@@ -62,10 +62,5 @@ public class UserService : IUserService
         }
 
         return userId;
-    }
-
-    public async Task<List<UserModel>> GetAll()
-    {
-        return await _userRepository.GetAllUsersAsync();
     }
 }

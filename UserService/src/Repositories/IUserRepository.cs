@@ -9,8 +9,6 @@ public interface IUserRepository
 
     Task<UserModel?> GetUserByIdAsync(int id);
 
-    Task<List<UserModel>> GetAllUsersAsync();
-
     Task<UserModel?> GetUserByNameAsync(string name, string surname);
 
     Task<UserModel?> GetUserByLoginAsync(string login);

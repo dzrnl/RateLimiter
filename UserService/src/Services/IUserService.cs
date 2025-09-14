@@ -13,7 +13,5 @@ public interface IUserService
 
     Task<int> Update(UpdateUserDto dto);
 
-    Task<int> DeleteById(int userId);
-
-    Task<List<UserModel>> GetAll();
+    Task<int> Delete(int userId);
 }
