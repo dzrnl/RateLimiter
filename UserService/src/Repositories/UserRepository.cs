@@ -125,7 +125,7 @@ public class UserRepository : IUserRepository
 
         var parameters = new
         {
-            updatableFields.id,
+            updatableFields.Id,
             updatableFields.Password,
             updatableFields.Name,
             updatableFields.Surname,

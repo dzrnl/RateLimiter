@@ -1,16 +1,19 @@
+using UserService.Services.Dtos;
+using UserService.Services.Models;
+
 namespace UserService.Services;
 
 public interface IUserService
 {
-    UserModel GetById(int id);
+    Task<int> Create(CreateUserDto dto);
 
-    UserModel GetByName(string name, string surname);
+    Task<UserModel> GetById(int userId);
 
-    IList<UserModel> GetAll();
+    Task<UserModel> GetByName(string name, string surname);
 
-    int Create(CreateUserDto dto);
+    Task<int> Update(UpdateUserDto dto);
 
-    int Update(UpdateUserDto dto);
+    Task<int> DeleteById(int userId);
 
-    void DeleteById(int id);
+    Task<List<UserModel>> GetAll();
 }

@@ -1,4 +1,6 @@
 using UserService.Repositories;
+using UserService.Services.Dtos;
+using UserService.Services.Models;
 
 namespace UserService.Services;
 
@@ -11,56 +13,59 @@ public class UserService : IUserService
         _userRepository = userRepository;
     }
 
-    async UserModel GetById(int id)
+    public async Task<int> Create(CreateUserDto dto)
     {
-        UserModel? user = await _userRepository.GetUserByIdAsync(id);
+        if (await _userRepository.GetUserByLoginAsync(dto.Login) != null)
+        {
+            throw new LoginConflictException();
+        }
+
+        return await _userRepository.CreateUserAsync(dto);
+    }
+
+    public async Task<UserModel> GetById(int userId)
+    {
+        var user = await _userRepository.GetUserByIdAsync(userId);
+
         if (user is null)
         {
-            throw UserNotFoundException("Error: no user with such ID");
+            throw UserNotFoundException.For(nameof(user.Id), userId);
         }
 
         return user;
     }
 
-    UserModel GetByName(string name, string surname)
+    public async Task<UserModel> GetByName(string name, string surname)
     {
-        UserModel? user = await _userRepository.GetUserByNameAsync(name, surname);
+        var user = await _userRepository.GetUserByNameAsync(name, surname);
+
         if (user is null)
         {
-            throw new UserNotFoundException("Error: no user with such name");
+            throw UserNotFoundException.For(nameof(user.Name) + " " + nameof(user.Surname), name + " " + surname);
         }
 
         return user;
     }
 
-    IList<UserModel> GetAll()
+    public async Task<int> Update(UpdateUserDto dto)
     {
-        return _userRepository.GetAllUsersAsync();
+        return await _userRepository.UpdateUserAsync(dto);
     }
 
-    int Create(CreateUserDto dto)
+    public async Task<int> DeleteById(int userId)
     {
-        if (_userRepository.GetUserByLoginAsync(dto.Id) != null)
+        var deletedId = await _userRepository.DeleteUserAsync(userId);
+
+        if (deletedId is null)
         {
-            throw new LoginConflictException("Error: user with this login already exists");
+            throw UserNotFoundException.For(nameof(userId), userId);
         }
 
-        return _userRepository.CreateUserAsync(dto);    
+        return userId;
     }
 
-    void Update(UpdateUserDto dto)
+    public async Task<List<UserModel>> GetAll()
     {
-        _userRepository.UpdateUserAsync(dto);
-    }
-
-    int DeleteById(int id)
-    {
-        int? id = _userRepository.DeleteById(id);
-        if (id is null)
-        {
-            throw new UserNotFoundException("Error: no user with such ID");
-        }
-
-        return id;
+        return await _userRepository.GetAllUsersAsync();
     }
 }
