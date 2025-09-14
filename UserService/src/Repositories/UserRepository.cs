@@ -1,3 +1,3 @@
 namespace UserService.Repositories;
 
-class UserRepository { }
+public class UserRepository : IUserRepository;
