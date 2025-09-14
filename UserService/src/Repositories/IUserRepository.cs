@@ -7,15 +7,15 @@ public interface IUserRepository
 {
     Task<int> CreateUserAsync(CreateUserDto user);
 
-    Task<UserModel> GetUserByIdAsync(int id);
+    Task<UserModel?> GetUserByIdAsync(int id);
 
     Task<List<UserModel>> GetAllUsersAsync();
 
-    Task<UserModel> GetUserByNameAsync(string name, string surname);
+    Task<UserModel?> GetUserByNameAsync(string name, string surname);
 
-    Task DeleteUserAsync(int id);
+    Task<UserModel?> GetUserByLoginAsync(string login);
 
-    Task<bool> ExistsUserAsync(int id);
+    Task<int?> DeleteUserAsync(int id);
 
-    Task<UserModel> UpdateUserAsync(int id, UpdateUserDto updatableFields);
+    Task UpdateUserAsync(UpdateUserDto dto);
 }

@@ -124,13 +124,13 @@ public class UserRepository : IUserRepository
         return count > 0;
     }
 
-    public async Task<UserModel> UpdateUserAsync(int id, UpdateUserDto updatableFields)
+    public async Task<UserModel> UpdateUserAsync(UpdateUserDto updatableFields)
     {
         await using var connection = new NpgsqlConnection(_connectionString);
 
         var parameters = new
         {
-            Id = id,
+            updatableFields.id,
             updatableFields.Password,
             updatableFields.Name,
             updatableFields.Surname,
