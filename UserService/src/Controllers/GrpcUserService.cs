@@ -19,24 +19,24 @@ public class GrpcUserService : UserServiceBase
     {
         throw new NotImplementedException();
     }
-    
+
     public override Task<User> GetUserById(UserId request, ServerCallContext context)
     {
         throw new NotImplementedException();
     }
-    
+
     public override Task<User> GetUserByName(UserFullName request, ServerCallContext context)
     {
         throw new NotImplementedException();
     }
-    
+
     public override Task<UserId> UpdateUser(UpdateUserRequest request, ServerCallContext context)
     {
         throw new NotImplementedException();
-    } 
-    
+    }
+
     public override Task<UserId> DeleteUser(UserId request, ServerCallContext context)
     {
         throw new NotImplementedException();
-    } 
+    }
 }
