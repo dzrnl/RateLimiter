@@ -5,5 +5,18 @@ option csharp_namespace = "UserService";
 package userService;
 
 service UserService {
+  rpc CreateUser (User) returns (UserIdResponse);
+}
 
+message User {
+  int32 id = 1;
+  string login = 2;
+  string password = 3;
+  string name = 4;
+  string surname = 5;
+  int32 age = 6;
+}
+
+message UserIdResponse {
+  int32 id = 1;
 }
