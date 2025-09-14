@@ -1,3 +1,4 @@
+using UserService.Controllers;
 using UserService.Repositories.Extensions;
 using UserService.Services.Extensions;
 
@@ -10,6 +11,6 @@ builder.Services.AddInfrastructureDataAccess();
 
 var app = builder.Build();
 
-app.MapGrpcService<UserService.Services.UserService>();
+app.MapGrpcService<GrpcUserService>();
 
 await app.RunAsync("http://*:5002");
