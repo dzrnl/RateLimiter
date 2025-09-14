@@ -1,6 +1,6 @@
 namespace UserService.Services.Models;
 
-public record User(
+public record UserModel(
     int Id,
     string Login,
     string Password,
