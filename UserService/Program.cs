@@ -1,4 +1,5 @@
 using UserService.Controllers;
+using UserService.Controllers.Extensions;
 using UserService.Repositories.Extensions;
 using UserService.Services.Extensions;
 
@@ -8,6 +9,7 @@ builder.Services.AddGrpc();
 
 builder.Services.AddApplication();
 builder.Services.AddInfrastructureDataAccess();
+builder.Services.AddValidators();
 
 var app = builder.Build();
 
