@@ -70,23 +70,18 @@ public class UserRepository : IUserRepository
 
     private const string ExistsQuery = "SELECT COUNT(1) FROM users WHERE id = @Id";
 
-    private readonly string _connectionString;
-
-    UserRepository(string dbConnection)
-    {
-        _connectionString = dbConnection;
-    }
+    private const string ConnectionString = "";
 
     public async Task<int> CreateUserAsync(CreateUserDto user)
     {
-        await using var connection = new NpgsqlConnection(_connectionString);
+        await using var connection = new NpgsqlConnection(ConnectionString);
 
         return await connection.ExecuteScalarAsync<int>(InsertQuery, user);
     }
 
     public async Task<UserModel> GetUserByIdAsync(int id)
     {
-        await using var connection = new NpgsqlConnection(_connectionString);
+        await using var connection = new NpgsqlConnection(ConnectionString);
 
         return await connection.QueryFirstOrDefaultAsync<UserModel>(
             SelectByIdQuery,
@@ -95,7 +90,7 @@ public class UserRepository : IUserRepository
 
     public async Task<List<UserModel>> GetAllUsersAsync()
     {
-        await using var connection = new NpgsqlConnection(_connectionString);
+        await using var connection = new NpgsqlConnection(ConnectionString);
 
         var users = await connection.QueryAsync<UserModel>(SelectQuery);
         return users.ToList();
@@ -103,7 +98,7 @@ public class UserRepository : IUserRepository
 
     public async Task<UserModel> GetUserByNameAsync(string name, string surname)
     {
-        await using var connection = new NpgsqlConnection(_connectionString);
+        await using var connection = new NpgsqlConnection(ConnectionString);
 
         return await connection.QueryFirstOrDefaultAsync<UserModel>(
             SelectByNameQuery,
@@ -112,21 +107,21 @@ public class UserRepository : IUserRepository
 
     public async Task DeleteUserAsync(int id)
     {
-        await using var connection = new NpgsqlConnection(_connectionString);
+        await using var connection = new NpgsqlConnection(ConnectionString);
 
         await connection.ExecuteAsync(DeleteByIdQuery, new { Id = id });
     }
 
     public async Task<bool> ExistsUserAsync(int id)
     {
-        await using var connection = new NpgsqlConnection(_connectionString);
+        await using var connection = new NpgsqlConnection(ConnectionString);
         var count = await connection.ExecuteScalarAsync<int>(ExistsQuery, new { Id = id });
         return count > 0;
     }
 
     public async Task<UserModel> UpdateUserAsync(UpdateUserDto updatableFields)
     {
-        await using var connection = new NpgsqlConnection(_connectionString);
+        await using var connection = new NpgsqlConnection(ConnectionString);
 
         var parameters = new
         {
