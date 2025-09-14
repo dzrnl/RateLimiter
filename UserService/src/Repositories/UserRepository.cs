@@ -39,7 +39,7 @@ public class UserRepository : IUserRepository
                                                       surname as {nameof(UserModel.Surname)},
                                                       age as {nameof(UserModel.Age)}
                                                       from users
-                                                      where name = @Name
+                                                      where name = @Name and surname = @Surname LIMIT 1
                                               """;
 
     private const string UpdateQuery = $"""
@@ -101,13 +101,13 @@ public class UserRepository : IUserRepository
         return users.ToList();
     }
 
-    public async Task<UserModel> GetUserByNameAsync(string name)
+    public async Task<UserModel> GetUserByNameAsync(string name, string surname)
     {
         await using var connection = new NpgsqlConnection(_connectionString);
 
         return await connection.QueryFirstOrDefaultAsync<UserModel>(
             SelectByNameQuery,
-            new { Name = name });
+            new { Name = name, Surname = surname });
     }
 
     public async Task DeleteUserAsync(int id)

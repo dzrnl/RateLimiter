@@ -11,7 +11,7 @@ public interface IUserRepository
 
     Task<List<UserModel>> GetAllUsersAsync();
 
-    Task<UserModel> GetUserByNameAsync(string name);
+    Task<UserModel> GetUserByNameAsync(string name, string surname);
 
     Task DeleteUserAsync(int id);
 
