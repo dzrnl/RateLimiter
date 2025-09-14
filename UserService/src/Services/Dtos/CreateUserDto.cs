@@ -1,7 +1,6 @@
-namespace UserService.Services.Models;
+namespace UserService.Services.Dtos;
 
-public record User(
-    int Id,
+public record CreateUserDto(
     string Login,
     string Password,
     string Name,
