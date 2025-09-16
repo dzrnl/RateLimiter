@@ -1,6 +1,7 @@
 using FluentValidation;
 using Grpc.Core;
 using UserService.Services;
+using UserService.Services.Models;
 using static UserService.UserService;
 
 namespace UserService.Controllers;
@@ -11,17 +12,20 @@ public class GrpcUserService : UserServiceBase
     private readonly IValidator<CreateUserRequest> _createValidator;
     private readonly IValidator<UpdateUserRequest> _updateValidator;
     private readonly ILogger<GrpcUserService> _logger;
+    private readonly UserMapper _mapper;
 
     public GrpcUserService(
         IUserService userService,
         IValidator<CreateUserRequest> createValidator,
         IValidator<UpdateUserRequest> updateValidator,
-        ILogger<GrpcUserService> logger)
+        ILogger<GrpcUserService> logger,
+        UserMapper mapper)
     {
         _userService = userService;
         _createValidator = createValidator;
         _updateValidator = updateValidator;
         _logger = logger;
+        _mapper = mapper;
     }
 
     public override async Task<UserId> CreateUser(CreateUserRequest request, ServerCallContext context)
@@ -30,20 +34,57 @@ public class GrpcUserService : UserServiceBase
             request.Login, request.Name, request.Surname, request.Age);
 
         await _createValidator.ValidateAndThrowAsync(request);
+        try
+        {
+            int createdId = await _userService.Create(_mapper.ToCreateModel(request));
 
-        throw new NotImplementedException();
+            return new UserId() { Id = createdId };
+        }
+        catch (LoginConflictException exception)
+        {
+            throw new RpcException(new Status(
+                StatusCode.AlreadyExists,
+                exception.Message)
+            );
+        }
     }
 
-    public override Task<User> GetUserById(UserId request, ServerCallContext context)
+    public override async Task<UserResponse> GetUserById(UserId request, ServerCallContext context)
     {
         _logger.LogInformation("GetUserById called. UserId: {Id}", request.Id);
-        throw new NotImplementedException();
+        try
+        {
+            UserModel model = await _userService.GetById(request.Id);
+            
+            return _mapper.FromModel(model);
+        }
+        catch (UserNotFoundException exception)
+        {
+            throw new RpcException(new Status(
+                    StatusCode.NotFound,
+                    exception.Message
+                )
+            );
+        }
     }
 
-    public override Task<User> GetUserByName(UserFullName request, ServerCallContext context)
+    public override async Task<UserResponse> GetUserByName(UserFullName request, ServerCallContext context)
     {
         _logger.LogInformation("GetUserByName called. Name: {Name}, Surname: {Surname}", request.Name, request.Surname);
-        throw new NotImplementedException();
+        try
+        {
+            UserModel model = await _userService.GetByName(request.Name, request.Surname);
+            
+            return _mapper.FromModel(model);
+        }
+        catch (UserNotFoundException exception)
+        {
+            throw new RpcException(new Status(
+                    StatusCode.NotFound,
+                    exception.Message
+                )
+            );
+        }
     }
 
     public override async Task<UserId> UpdateUser(UpdateUserRequest request, ServerCallContext context)
@@ -58,13 +99,39 @@ public class GrpcUserService : UserServiceBase
         );
 
         await _updateValidator.ValidateAndThrowAsync(request);
-
-        throw new NotImplementedException();
+        try
+        {
+            // TODO: must throw UserNotFoundException
+            int id = await _userService.Update(_mapper.ToUpdateModel(request));
+            
+            return new UserId() { Id = id };
+        }
+        catch (UserNotFoundException exception)
+        {
+            throw new RpcException(new Status(
+                    StatusCode.NotFound,
+                    exception.Message
+                )
+            );
+        }
     }
 
-    public override Task<UserId> DeleteUser(UserId request, ServerCallContext context)
+    public override async Task<UserId> DeleteUser(UserId request, ServerCallContext context)
     {
         _logger.LogInformation("DeleteUser called. UserId: {Id}", request.Id);
-        throw new NotImplementedException();
+        try
+        {
+            int id = await _userService.Delete(request.Id);
+            
+            return new UserId() { Id = id };
+        }
+        catch (UserNotFoundException exception)
+        {
+            throw new RpcException(new Status(
+                    StatusCode.NotFound,
+                    exception.Message
+                )
+            );
+        }
     }
 }

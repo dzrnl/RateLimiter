@@ -6,13 +6,13 @@ package userService;
 
 service UserService {
   rpc CreateUser (CreateUserRequest) returns (UserId);
-  rpc GetUserById (UserId) returns (User);
-  rpc GetUserByName (UserFullName) returns (User);
+  rpc GetUserById (UserId) returns (UserResponse);
+  rpc GetUserByName (UserFullName) returns (UserResponse);
   rpc UpdateUser (UpdateUserRequest) returns (UserId);
   rpc DeleteUser (UserId) returns (UserId);
 }
 
-message User {
+message UserResponse {
   int32 id = 1;
   string login = 2;
   string name = 3;

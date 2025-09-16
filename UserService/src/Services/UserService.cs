@@ -49,6 +49,7 @@ public class UserService : IUserService
 
     public async Task<int> Update(UpdateUserDto dto)
     {
+        // TODO: must throw UserNotFoundException
         return await _userRepository.UpdateUserAsync(dto);
     }
 
