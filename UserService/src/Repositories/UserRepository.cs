@@ -72,7 +72,7 @@ public class UserRepository : IUserRepository
 
     private const string ConnectionString = "";
 
-    public async Task<int> CreateUserAsync(CreateUserDto user)
+    public async Task<UserModel> CreateUserAsync(CreateUserDto user)
     {
         await using var connection = new NpgsqlConnection(ConnectionString);
 
@@ -102,13 +102,6 @@ public class UserRepository : IUserRepository
         await using var connection = new NpgsqlConnection(ConnectionString);
 
         await connection.ExecuteAsync(DeleteByIdQuery, new { Id = id });
-    }
-
-    public async Task<bool> ExistsUserAsync(int id)
-    {
-        await using var connection = new NpgsqlConnection(ConnectionString);
-        var count = await connection.ExecuteScalarAsync<int>(ExistsQuery, new { Id = id });
-        return count > 0;
     }
 
     public async Task<UserModel> UpdateUserAsync(UpdateUserDto updatableFields)

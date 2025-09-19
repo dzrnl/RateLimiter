@@ -8,7 +8,7 @@ service UserService {
   rpc CreateUser (CreateUserRequest) returns (UserId);
   rpc GetUserById (UserId) returns (UserResponse);
   rpc GetUserByName (UserFullName) returns (UserResponse);
-  rpc UpdateUser (UpdateUserRequest) returns (UserId);
+  rpc UpdateUser (UpdateUserRequest) returns (stream UserId);
   rpc DeleteUser (UserId) returns (UserId);
 }
 

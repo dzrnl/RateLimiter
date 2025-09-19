@@ -20,7 +20,9 @@ public class UserService : IUserService
             throw new LoginConflictException();
         }
 
-        return await _userRepository.CreateUserAsync(dto);
+        var createdUser = await _userRepository.CreateUserAsync(dto);
+
+        return createdUser.Id;
     }
 
     public async Task<UserModel> GetById(int userId)
