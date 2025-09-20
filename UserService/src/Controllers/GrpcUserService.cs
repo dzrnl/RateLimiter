@@ -34,8 +34,8 @@ public class GrpcUserService : UserServiceBase
 
     public override async Task<UserResponse> GetUserById(UserId request, ServerCallContext context)
     {
-        var model = await _userService.GetById(request.Id);
-        return _mapper.FromModel(model);
+        var user = await _userService.GetById(request.Id);
+        return _mapper.FromModel(user);
     }
 
     public override async Task GetUserByName(
@@ -61,7 +61,7 @@ public class GrpcUserService : UserServiceBase
 
     public override async Task<UserId> DeleteUser(UserId request, ServerCallContext context)
     {
-        var id = await _userService.Delete(request.Id);
-        return new UserId { Id = id };
+        var userId = await _userService.Delete(request.Id);
+        return new UserId { Id = userId };
     }
 }
