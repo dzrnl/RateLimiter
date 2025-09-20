@@ -9,7 +9,7 @@ public interface IUserService
 
     Task<UserModel> GetById(int userId);
 
-    Task<IEnumerable<UserModel>> GetByName(string name, string surname);
+    Task<List<UserModel>> GetByName(string name, string surname);
 
     Task<UserModel> Update(UpdateUserDto dto);
 

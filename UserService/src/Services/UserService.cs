@@ -45,7 +45,7 @@ public class UserService : IUserService
         return user;
     }
 
-    public async Task<IEnumerable<UserModel>> GetByName(string name, string surname)
+    public async Task<List<UserModel>> GetByName(string name, string surname)
     {
         return await _userRepository.GetUsersByNameAsync(name, surname);
     }
