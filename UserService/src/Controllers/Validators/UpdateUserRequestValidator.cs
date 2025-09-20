@@ -25,5 +25,9 @@ public class UpdateUserRequestValidator : AbstractValidator<UpdateUserRequest>
             RuleFor(x => x.Age)
                 .GreaterThan(0).WithMessage("Age must be greater than 0");
         });
+
+        RuleFor(x => x)
+            .Must(x => x.HasPassword || x.HasName || x.HasSurname || x.HasAge)
+            .WithMessage("At least one field must be provided for update");
     }
 }
