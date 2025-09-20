@@ -29,9 +29,9 @@ public class GrpcUserService : UserServiceBase
         await _createValidator.ValidateAndThrowAsync(request);
         try
         {
-            var createdId = await _userService.Create(_mapper.ToCreateModel(request));
+            var user = await _userService.Create(_mapper.ToCreateModel(request));
 
-            return new UserId { Id = createdId };
+            return new UserId { Id = user.Id };
         }
         catch (LoginConflictException exception)
         {
@@ -78,9 +78,9 @@ public class GrpcUserService : UserServiceBase
         await _updateValidator.ValidateAndThrowAsync(request);
         try
         {
-            var id = await _userService.Update(_mapper.ToUpdateModel(request));
+            var user = await _userService.Update(_mapper.ToUpdateModel(request));
 
-            return new UserId { Id = id };
+            return new UserId { Id = user.Id };
         }
         catch (UserNotFoundException exception)
         {

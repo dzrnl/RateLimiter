@@ -7,22 +7,30 @@ namespace UserService.Services;
 public class UserService : IUserService
 {
     private readonly IUserRepository _userRepository;
+    private static readonly SemaphoreSlim CreateUserSemaphore = new(1, 1);
 
     public UserService(IUserRepository userRepository)
     {
         _userRepository = userRepository;
     }
 
-    public async Task<int> Create(CreateUserDto dto)
+    public async Task<UserModel> Create(CreateUserDto dto)
     {
-        if (await _userRepository.GetUserByLoginAsync(dto.Login) != null)
+        await CreateUserSemaphore.WaitAsync();
+        try
         {
-            throw new LoginConflictException();
+            var existingUser = await _userRepository.GetUserByLoginAsync(dto.Login);
+            if (existingUser != null)
+            {
+                throw new LoginConflictException();
+            }
+
+            return await _userRepository.CreateUserAsync(dto);
         }
-
-        var createdUser = await _userRepository.CreateUserAsync(dto);
-
-        return createdUser.Id;
+        finally
+        {
+            CreateUserSemaphore.Release();
+        }
     }
 
     public async Task<UserModel> GetById(int userId)
@@ -42,7 +50,7 @@ public class UserService : IUserService
         return await _userRepository.GetUsersByNameAsync(name, surname);
     }
 
-    public async Task<int> Update(UpdateUserDto dto)
+    public async Task<UserModel> Update(UpdateUserDto dto)
     {
         var updatedUser = await _userRepository.UpdateUserAsync(dto);
 
@@ -51,7 +59,7 @@ public class UserService : IUserService
             throw UserNotFoundException.For(nameof(dto.Id), dto.Id);
         }
 
-        return updatedUser.Id;
+        return updatedUser;
     }
 
     public async Task<int> Delete(int userId)
