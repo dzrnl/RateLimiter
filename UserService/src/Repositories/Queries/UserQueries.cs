@@ -4,65 +4,57 @@ namespace UserService.Repositories.Queries;
 
 public static class UserQueries
 {
-    public const string Select = $"""
-                                  select
-                                          id as {nameof(UserEntity.Id)},
-                                          login as {nameof(UserEntity.Login)},
-                                          password as {nameof(UserEntity.Password)},
-                                          name as {nameof(UserEntity.Name)},
-                                          surname as {nameof(UserEntity.Surname)},
-                                          age as {nameof(UserEntity.Age)}
-                                          from users
-                                  """;
+    private const string TableName = "users";
+
+    private const string Columns = $"""
+                                    id AS {nameof(UserEntity.Id)},
+                                    login AS {nameof(UserEntity.Login)},
+                                    password AS {nameof(UserEntity.Password)},
+                                    name AS {nameof(UserEntity.Name)},
+                                    surname AS {nameof(UserEntity.Surname)},
+                                    age AS {nameof(UserEntity.Age)}
+                                    """;
+
+    private const string IdColumn = $"id AS {nameof(UserEntity.Id)}";
 
     public const string SelectById = $"""
-                                      select
-                                              id as {nameof(UserEntity.Id)},
-                                              login as {nameof(UserEntity.Login)},
-                                              password as {nameof(UserEntity.Password)},
-                                              name as {nameof(UserEntity.Name)},
-                                              surname as {nameof(UserEntity.Surname)},
-                                              age as {nameof(UserEntity.Age)}
-                                              from users
-                                              where id = @Id
+                                      SELECT {Columns}
+                                      FROM {TableName}
+                                      WHERE id = @Id
                                       """;
 
-    public const string SelectByName = $"""
-                                        select
-                                                id as {nameof(UserEntity.Id)},
-                                                login as {nameof(UserEntity.Login)},
-                                                password as {nameof(UserEntity.Password)},
-                                                name as {nameof(UserEntity.Name)},
-                                                surname as {nameof(UserEntity.Surname)},
-                                                age as {nameof(UserEntity.Age)}
-                                                from users
-                                                where name = @Name and surname = @Surname LIMIT 1
-                                        """;
+    public const string SelectByLogin = $"""
+                                         SELECT {Columns}
+                                         FROM {TableName}
+                                         WHERE login = @Login
+                                         """;
+
+    public const string SelectAllByName = $"""
+                                           SELECT {Columns}
+                                           FROM {TableName}
+                                           WHERE name = @Name AND surname = @Surname
+                                           """;
 
     public const string Update = $"""
-                                  UPDATE users 
-                                          SET password = @Password, name = @Name, 
-                                          surname = @Surname, age = @Age
-                                          WHERE id = @Id
-                                          RETURNING id as {nameof(UserEntity.Id)},
-                                          login as {nameof(UserEntity.Login)},
-                                          password as {nameof(UserEntity.Password)},
-                                          name as {nameof(UserEntity.Name)},
-                                          surname as {nameof(UserEntity.Surname)},
-                                          age as {nameof(UserEntity.Age)}
+                                  UPDATE {TableName} 
+                                  SET password = @Password, 
+                                      name = @Name, 
+                                      surname = @Surname, 
+                                      age = @Age
+                                  WHERE id = @Id
+                                  RETURNING {Columns}
                                   """;
 
-    public const string Insert = """
-                                 INSERT INTO users 
-                                         (login, password, name, surname, age) 
-                                         VALUES (@Login, @Password, @Name, @Surname, @Age)
-                                         RETURNING id
-                                 """;
+    public const string Insert = $"""
+                                  INSERT INTO {TableName} 
+                                      (login, password, name, surname, age) 
+                                  VALUES (@Login, @Password, @Name, @Surname, @Age)
+                                  RETURNING {Columns}
+                                  """;
 
-    public const string DeleteById = """
-                                     DELETE 
-                                             FROM users 
-                                             WHERE id = @Id
-                                             RETURNING id
-                                     """;
+    public const string DeleteById = $"""
+                                      DELETE FROM {TableName}
+                                      WHERE id = @Id
+                                      RETURNING {IdColumn}
+                                      """;
 }
