@@ -49,19 +49,19 @@ public class ExceptionInterceptor : Interceptor
         switch (ex)
         {
             case LoginConflictException le:
-                _logger.LogWarning(le, "Login conflict for request: {@Request}", request);
+                _logger.LogWarning("Login conflict for request: {@Request}. Message: {Message}", request, le.Message);
                 return new RpcException(new Status(StatusCode.AlreadyExists, le.Message));
 
             case UserNotFoundException ue:
-                _logger.LogWarning(ue, "User not found for request: {@Request}", request);
+                _logger.LogWarning("User not found for request: {@Request}. Message: {Message}", request, ue.Message);
                 return new RpcException(new Status(StatusCode.NotFound, ue.Message));
 
             case FluentValidation.ValidationException ve:
-                _logger.LogWarning(ve, "Validation failed for request: {@Request}", request);
+                _logger.LogWarning("Validation failed for request: {@Request}. Message: {Message}", request, ve.Message);
                 return new RpcException(new Status(StatusCode.InvalidArgument, ve.Message));
 
             default:
-                _logger.LogError(ex, "Unhandled exception for request: {@Request}", request);
+                _logger.LogError("Unhandled exception for request: {@Request}. Message: {Message}", request, ex.Message);
                 return new RpcException(new Status(StatusCode.Internal, "Internal server error"));
         }
     }
