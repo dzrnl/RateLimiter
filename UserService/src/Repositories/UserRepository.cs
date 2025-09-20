@@ -50,7 +50,7 @@ public class UserRepository : IUserRepository
         return userEntity is null ? null : _mapper.ToModel(userEntity);
     }
 
-    public async Task<IEnumerable<UserModel>> GetUserByNameAsync(string name, string surname)
+    public async Task<IEnumerable<UserModel>> GetUsersByNameAsync(string name, string surname)
     {
         await using var connection = new NpgsqlConnection(_connectionString);
 

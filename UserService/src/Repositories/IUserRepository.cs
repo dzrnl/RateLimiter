@@ -11,7 +11,7 @@ public interface IUserRepository
 
     Task<UserModel?> GetUserByLoginAsync(string login);
 
-    Task<IEnumerable<UserModel>> GetUserByNameAsync(string name, string surname);
+    Task<IEnumerable<UserModel>> GetUsersByNameAsync(string name, string surname);
 
     Task<UserModel?> UpdateUserAsync(UpdateUserDto dto);
 

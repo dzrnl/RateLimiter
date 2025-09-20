@@ -39,7 +39,7 @@ public class UserService : IUserService
 
     public async Task<IEnumerable<UserModel>> GetByName(string name, string surname)
     {
-        return await _userRepository.GetUserByNameAsync(name, surname);
+        return await _userRepository.GetUsersByNameAsync(name, surname);
     }
 
     public async Task<int> Update(UpdateUserDto dto)
