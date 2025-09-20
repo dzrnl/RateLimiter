@@ -37,22 +37,21 @@ public class UserService : IUserService
         return user;
     }
 
-    public async Task<UserModel> GetByName(string name, string surname)
+    public async Task<IEnumerable<UserModel>> GetByName(string name, string surname)
     {
-        var user = await _userRepository.GetUserByNameAsync(name, surname);
-
-        if (user is null)
-        {
-            throw UserNotFoundException.For(nameof(user.Name) + " " + nameof(user.Surname), name + " " + surname);
-        }
-
-        return user;
+        return await _userRepository.GetUserByNameAsync(name, surname);
     }
 
     public async Task<int> Update(UpdateUserDto dto)
     {
-        // TODO: must throw UserNotFoundException
-        return await _userRepository.UpdateUserAsync(dto);
+        var updatedUser = await _userRepository.UpdateUserAsync(dto);
+
+        if (updatedUser is null)
+        {
+            throw UserNotFoundException.For(nameof(dto.Id), dto.Id);
+        }
+
+        return updatedUser.Id;
     }
 
     public async Task<int> Delete(int userId)

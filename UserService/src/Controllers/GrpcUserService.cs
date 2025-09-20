@@ -75,19 +75,11 @@ public class GrpcUserService : UserServiceBase
     {
         _logger.LogInformation("GetUserByName called. Name: {Name}, Surname: {Surname}", request.Name, request.Surname);
 
-        try
-        {
-            var model = await _userService.GetByName(request.Name, request.Surname);
+        var users = await _userService.GetByName(request.Name, request.Surname);
 
-            await responseStream.WriteAsync(_mapper.FromModel(model));
-        }
-        catch (UserNotFoundException exception)
+        foreach (var user in users)
         {
-            throw new RpcException(new Status(
-                    StatusCode.NotFound,
-                    exception.Message
-                )
-            );
+            await responseStream.WriteAsync(_mapper.FromModel(user));
         }
     }
 
