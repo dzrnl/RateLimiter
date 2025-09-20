@@ -66,7 +66,7 @@ public class UserRepository : IUserRepository
         await using var connection = new NpgsqlConnection(_connectionString);
 
         var userEntity = await connection.QueryFirstOrDefaultAsync<UserEntity>(UserQueries.Update, dto);
-        
+
         return userEntity is null ? null : _mapper.ToModel(userEntity);
     }
 

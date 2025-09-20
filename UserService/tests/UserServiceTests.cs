@@ -32,7 +32,7 @@ public class UserServiceTests
             .ReturnsAsync(new UserModel(1, dto.Login, dto.Password, dto.Name, dto.Surname, dto.Age));
 
         // Act & Assert
-        await Assert.ThrowsAsync<LoginConflictException>(() => _userService.Create(dto));
+        await Assert.ThrowsAsync<LoginConflictException>(() => _userService.CreateAsync(dto));
     }
 
     [Fact]
@@ -47,7 +47,7 @@ public class UserServiceTests
             .ReturnsAsync(new UserModel(1, dto.Login, dto.Password, dto.Name, dto.Surname, dto.Age));
 
         // Act
-        var result = await _userService.Create(dto);
+        var result = await _userService.CreateAsync(dto);
 
         // Assert
         Assert.NotNull(result);
@@ -62,7 +62,7 @@ public class UserServiceTests
         _repositoryMock.Setup(r => r.GetUserByIdAsync(user.Id)).ReturnsAsync(user);
 
         // Act
-        var result = await _userService.GetById(user.Id);
+        var result = await _userService.GetByIdAsync(user.Id);
 
         // Assert
         Assert.Equal(user.Id, result.Id);
@@ -76,7 +76,7 @@ public class UserServiceTests
         _repositoryMock.Setup(r => r.GetUserByIdAsync(It.IsAny<int>())).ReturnsAsync((UserModel?)null);
 
         // Act & Assert
-        await Assert.ThrowsAsync<UserNotFoundException>(() => _userService.GetById(1));
+        await Assert.ThrowsAsync<UserNotFoundException>(() => _userService.GetByIdAsync(1));
     }
 
     [Fact]
@@ -89,7 +89,7 @@ public class UserServiceTests
         _repositoryMock.Setup(r => r.UpdateUserAsync(dto)).ReturnsAsync((UserModel?)null);
 
         // Act & Assert
-        await Assert.ThrowsAsync<UserNotFoundException>(() => _userService.Update(dto));
+        await Assert.ThrowsAsync<UserNotFoundException>(() => _userService.UpdateAsync(dto));
     }
 
     [Fact]
@@ -100,7 +100,7 @@ public class UserServiceTests
         _repositoryMock.Setup(r => r.DeleteUserAsync(userId)).ReturnsAsync(userId);
 
         // Act
-        var result = await _userService.Delete(userId);
+        var result = await _userService.DeleteAsync(userId);
 
         // Assert
         Assert.Equal(userId, result);
@@ -113,6 +113,6 @@ public class UserServiceTests
         _repositoryMock.Setup(r => r.DeleteUserAsync(It.IsAny<int>())).ReturnsAsync((int?)null);
 
         // Act & Assert
-        await Assert.ThrowsAsync<UserNotFoundException>(() => _userService.Delete(1));
+        await Assert.ThrowsAsync<UserNotFoundException>(() => _userService.DeleteAsync(1));
     }
 }

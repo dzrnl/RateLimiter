@@ -14,7 +14,7 @@ public class UserService : IUserService
         _userRepository = userRepository;
     }
 
-    public async Task<UserModel> Create(CreateUserDto dto)
+    public async Task<UserModel> CreateAsync(CreateUserDto dto)
     {
         await CreateUserSemaphore.WaitAsync();
         try
@@ -33,7 +33,7 @@ public class UserService : IUserService
         }
     }
 
-    public async Task<UserModel> GetById(int userId)
+    public async Task<UserModel> GetByIdAsync(int userId)
     {
         var user = await _userRepository.GetUserByIdAsync(userId);
 
@@ -45,12 +45,12 @@ public class UserService : IUserService
         return user;
     }
 
-    public async Task<UserModel[]> GetByName(string name, string surname)
+    public async Task<UserModel[]> GetByNameAsync(string name, string surname)
     {
         return await _userRepository.GetUsersByNameAsync(name, surname);
     }
 
-    public async Task<UserModel> Update(UpdateUserDto dto)
+    public async Task<UserModel> UpdateAsync(UpdateUserDto dto)
     {
         var updatedUser = await _userRepository.UpdateUserAsync(dto);
 
@@ -62,7 +62,7 @@ public class UserService : IUserService
         return updatedUser;
     }
 
-    public async Task<int> Delete(int userId)
+    public async Task<int> DeleteAsync(int userId)
     {
         var deletedId = await _userRepository.DeleteUserAsync(userId);
 

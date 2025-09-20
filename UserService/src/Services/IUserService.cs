@@ -5,13 +5,13 @@ namespace UserService.Services;
 
 public interface IUserService
 {
-    Task<UserModel> Create(CreateUserDto dto);
+    Task<UserModel> CreateAsync(CreateUserDto dto);
 
-    Task<UserModel> GetById(int userId);
+    Task<UserModel> GetByIdAsync(int userId);
 
-    Task<UserModel[]> GetByName(string name, string surname);
+    Task<UserModel[]> GetByNameAsync(string name, string surname);
 
-    Task<UserModel> Update(UpdateUserDto dto);
+    Task<UserModel> UpdateAsync(UpdateUserDto dto);
 
-    Task<int> Delete(int userId);
+    Task<int> DeleteAsync(int userId);
 }

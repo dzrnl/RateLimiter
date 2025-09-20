@@ -28,13 +28,13 @@ public class GrpcUserService : UserServiceBase
     {
         await _createValidator.ValidateAndThrowAsync(request);
 
-        var user = await _userService.Create(_mapper.ToCreateModel(request));
+        var user = await _userService.CreateAsync(_mapper.ToCreateModel(request));
         return new UserId { Id = user.Id };
     }
 
     public override async Task<UserResponse> GetUserById(UserId request, ServerCallContext context)
     {
-        var user = await _userService.GetById(request.Id);
+        var user = await _userService.GetByIdAsync(request.Id);
         return _mapper.FromModel(user);
     }
 
@@ -43,7 +43,7 @@ public class GrpcUserService : UserServiceBase
         IServerStreamWriter<UserResponse> responseStream,
         ServerCallContext context)
     {
-        var users = await _userService.GetByName(request.Name, request.Surname);
+        var users = await _userService.GetByNameAsync(request.Name, request.Surname);
 
         foreach (var user in users)
         {
@@ -55,13 +55,13 @@ public class GrpcUserService : UserServiceBase
     {
         await _updateValidator.ValidateAndThrowAsync(request);
 
-        var user = await _userService.Update(_mapper.ToUpdateModel(request));
+        var user = await _userService.UpdateAsync(_mapper.ToUpdateModel(request));
         return new UserId { Id = user.Id };
     }
 
     public override async Task<UserId> DeleteUser(UserId request, ServerCallContext context)
     {
-        var userId = await _userService.Delete(request.Id);
+        var userId = await _userService.DeleteAsync(request.Id);
         return new UserId { Id = userId };
     }
 }
