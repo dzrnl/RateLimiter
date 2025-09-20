@@ -50,7 +50,7 @@ public class UserRepository : IUserRepository
         return userEntity is null ? null : _mapper.ToModel(userEntity);
     }
 
-    public async Task<List<UserModel>> GetUsersByNameAsync(string name, string surname)
+    public async Task<UserModel[]> GetUsersByNameAsync(string name, string surname)
     {
         await using var connection = new NpgsqlConnection(_connectionString);
 
@@ -58,7 +58,7 @@ public class UserRepository : IUserRepository
             UserQueries.SelectAllByName,
             new { Name = name, Surname = surname });
 
-        return _mapper.ToModel(userEntities).ToList();
+        return _mapper.ToModel(userEntities).ToArray();
     }
 
     public async Task<UserModel?> UpdateUserAsync(UpdateUserDto dto)
