@@ -37,10 +37,10 @@ public static class UserQueries
 
     public const string Update = $"""
                                   UPDATE {TableName} 
-                                  SET password = @Password, 
-                                      name = @Name, 
-                                      surname = @Surname, 
-                                      age = @Age
+                                  SET password = COALESCE(@Password, password),
+                                      name = COALESCE(@Name, name),
+                                      surname = COALESCE(@Surname, surname),
+                                      age = COALESCE(@Age, age)
                                   WHERE id = @Id
                                   RETURNING {Columns}
                                   """;
