@@ -9,8 +9,8 @@ public partial class UserMapper
 {
     [MapperIgnoreSource(nameof(userDomain.Password))]
     public partial UserResponse FromModel(UserModel userDomain);
-    
+
     public partial CreateUserDto ToCreateModel(CreateUserRequest request);
-    
+
     public partial UpdateUserDto ToUpdateModel(UpdateUserRequest request); // TODO
 }
