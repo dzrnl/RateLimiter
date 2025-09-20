@@ -1,5 +1,7 @@
 using Dapper;
+using Microsoft.Extensions.Options;
 using Npgsql;
+using UserService.Repositories.Queries;
 using UserService.Services.Dtos;
 using UserService.Services.Models;
 
@@ -7,116 +9,65 @@ namespace UserService.Repositories;
 
 public class UserRepository : IUserRepository
 {
-    private const string SelectQuery = $"""
-                                        select
-                                                id as {nameof(UserModel.Id)},
-                                                login as {nameof(UserModel.Login)},
-                                                password as {nameof(UserModel.Password)},
-                                                name as {nameof(UserModel.Name)},
-                                                surname as {nameof(UserModel.Surname)},
-                                                age as {nameof(UserModel.Age)}
-                                                from users
-                                        """;
+    private readonly string _connectionString;
 
-    private const string SelectByIdQuery = $"""
-                                            select
-                                                    id as {nameof(UserModel.Id)},
-                                                    login as {nameof(UserModel.Login)},
-                                                    password as {nameof(UserModel.Password)},
-                                                    name as {nameof(UserModel.Name)},
-                                                    surname as {nameof(UserModel.Surname)},
-                                                    age as {nameof(UserModel.Age)}
-                                                    from users
-                                                    where id = @Id
-                                            """;
-
-    private const string SelectByNameQuery = $"""
-                                              select
-                                                      id as {nameof(UserModel.Id)},
-                                                      login as {nameof(UserModel.Login)},
-                                                      password as {nameof(UserModel.Password)},
-                                                      name as {nameof(UserModel.Name)},
-                                                      surname as {nameof(UserModel.Surname)},
-                                                      age as {nameof(UserModel.Age)}
-                                                      from users
-                                                      where name = @Name and surname = @Surname LIMIT 1
-                                              """;
-
-    private const string UpdateQuery = $"""
-                                        UPDATE users 
-                                                SET password = @Password, name = @Name, 
-                                                surname = @Surname, age = @Age
-                                                WHERE id = @Id
-                                                RETURNING id as {nameof(UserModel.Id)},
-                                                login as {nameof(UserModel.Login)},
-                                                password as {nameof(UserModel.Password)},
-                                                name as {nameof(UserModel.Name)},
-                                                surname as {nameof(UserModel.Surname)},
-                                                age as {nameof(UserModel.Age)}
-                                        """;
-
-    private const string InsertQuery = """
-                                       INSERT INTO users 
-                                               (login, password, name, surname, age) 
-                                               VALUES (@Login, @Password, @Name, @Surname, @Age)
-                                               RETURNING id
-                                       """;
-
-    private const string DeleteByIdQuery = """
-                                           DELETE 
-                                                   FROM users 
-                                                   WHERE id = @Id
-                                           """;
-
-    private const string ExistsQuery = "SELECT COUNT(1) FROM users WHERE id = @Id";
-
-    private const string ConnectionString = "";
-
-    public async Task<UserModel> CreateUserAsync(CreateUserDto user)
+    public UserRepository(IOptions<DatabaseSettings> options)
     {
-        await using var connection = new NpgsqlConnection(ConnectionString);
-
-        return await connection.ExecuteScalarAsync<int>(InsertQuery, user);
+        _connectionString = options.Value.ConnectionString;
     }
 
-    public async Task<UserModel> GetUserByIdAsync(int id)
+    public async Task<UserModel> CreateUserAsync(CreateUserDto dto)
     {
-        await using var connection = new NpgsqlConnection(ConnectionString);
+        await using var connection = new NpgsqlConnection(_connectionString);
 
-        return await connection.QueryFirstOrDefaultAsync<UserModel>(
-            SelectByIdQuery,
-            new { Id = id });
+        var userId = await connection.ExecuteScalarAsync<int>(UserQueries.Insert, dto);
+
+        return await GetUserByIdAsync(userId); // TODO
     }
 
-    public async Task<UserModel> GetUserByNameAsync(string name, string surname)
+    public async Task<UserModel?> GetUserByIdAsync(int userId)
     {
-        await using var connection = new NpgsqlConnection(ConnectionString);
+        await using var connection = new NpgsqlConnection(_connectionString);
+
+        return await connection.QueryFirstOrDefaultAsync<UserModel>( // TODO: entity
+            UserQueries.SelectById,
+            new { Id = userId });
+    }
+
+    public Task<UserModel?> GetUserByLoginAsync(string login)
+    {
+        throw new NotImplementedException();
+    }
+
+    public async Task<UserModel?> GetUserByNameAsync(string name, string surname)
+    {
+        await using var connection = new NpgsqlConnection(_connectionString);
 
         return await connection.QueryFirstOrDefaultAsync<UserModel>(
-            SelectByNameQuery,
+            UserQueries.SelectByName,
             new { Name = name, Surname = surname });
     }
 
-    public async Task DeleteUserAsync(int id)
+    public async Task<int> UpdateUserAsync(UpdateUserDto dto)
     {
-        await using var connection = new NpgsqlConnection(ConnectionString);
-
-        await connection.ExecuteAsync(DeleteByIdQuery, new { Id = id });
-    }
-
-    public async Task<UserModel> UpdateUserAsync(UpdateUserDto updatableFields)
-    {
-        await using var connection = new NpgsqlConnection(ConnectionString);
+        await using var connection = new NpgsqlConnection(_connectionString);
 
         var parameters = new
         {
-            updatableFields.Id,
-            updatableFields.Password,
-            updatableFields.Name,
-            updatableFields.Surname,
-            updatableFields.Age
+            dto.Id,
+            dto.Password,
+            dto.Name,
+            dto.Surname,
+            dto.Age
         };
 
-        return await connection.QueryFirstOrDefaultAsync<UserModel>(UpdateQuery, parameters);
+        return await connection.ExecuteScalarAsync<int>(UserQueries.Update, parameters);
+    }
+
+    public async Task<int?> DeleteUserAsync(int userId)
+    {
+        await using var connection = new NpgsqlConnection(_connectionString);
+
+        return await connection.ExecuteScalarAsync<int>(UserQueries.DeleteById, new { Id = userId });
     }
 }

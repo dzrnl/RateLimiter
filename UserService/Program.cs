@@ -8,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddGrpc();
 
 builder.Services.AddApplication();
-builder.Services.AddInfrastructureDataAccess();
+builder.Services.AddInfrastructureDataAccess(builder.Configuration);
 builder.Services.AddValidators();
 
 var app = builder.Build();

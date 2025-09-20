@@ -7,8 +7,8 @@ package userService;
 service UserService {
   rpc CreateUser (CreateUserRequest) returns (UserId);
   rpc GetUserById (UserId) returns (UserResponse);
-  rpc GetUserByName (UserFullName) returns (UserResponse);
-  rpc UpdateUser (UpdateUserRequest) returns (stream UserId);
+  rpc GetUserByName (UserFullName) returns (stream UserResponse);
+  rpc UpdateUser (UpdateUserRequest) returns (UserId);
   rpc DeleteUser (UserId) returns (UserId);
 }
 

@@ -1,7 +1,6 @@
 using FluentValidation;
 using Grpc.Core;
 using UserService.Services;
-using UserService.Services.Models;
 using static UserService.UserService;
 
 namespace UserService.Controllers;
@@ -36,9 +35,9 @@ public class GrpcUserService : UserServiceBase
         await _createValidator.ValidateAndThrowAsync(request);
         try
         {
-            int createdId = await _userService.Create(_mapper.ToCreateModel(request));
+            var createdId = await _userService.Create(_mapper.ToCreateModel(request));
 
-            return new UserId() { Id = createdId };
+            return new UserId { Id = createdId };
         }
         catch (LoginConflictException exception)
         {
@@ -52,10 +51,11 @@ public class GrpcUserService : UserServiceBase
     public override async Task<UserResponse> GetUserById(UserId request, ServerCallContext context)
     {
         _logger.LogInformation("GetUserById called. UserId: {Id}", request.Id);
+
         try
         {
-            UserModel model = await _userService.GetById(request.Id);
-            
+            var model = await _userService.GetById(request.Id);
+
             return _mapper.FromModel(model);
         }
         catch (UserNotFoundException exception)
@@ -68,14 +68,18 @@ public class GrpcUserService : UserServiceBase
         }
     }
 
-    public override async Task<UserResponse> GetUserByName(UserFullName request, ServerCallContext context)
+    public override async Task GetUserByName(
+        UserFullName request,
+        IServerStreamWriter<UserResponse> responseStream,
+        ServerCallContext context)
     {
         _logger.LogInformation("GetUserByName called. Name: {Name}, Surname: {Surname}", request.Name, request.Surname);
+
         try
         {
-            UserModel model = await _userService.GetByName(request.Name, request.Surname);
-            
-            return _mapper.FromModel(model);
+            var model = await _userService.GetByName(request.Name, request.Surname);
+
+            await responseStream.WriteAsync(_mapper.FromModel(model));
         }
         catch (UserNotFoundException exception)
         {
@@ -102,9 +106,9 @@ public class GrpcUserService : UserServiceBase
         try
         {
             // TODO: must throw UserNotFoundException
-            int id = await _userService.Update(_mapper.ToUpdateModel(request));
-            
-            return new UserId() { Id = id };
+            var id = await _userService.Update(_mapper.ToUpdateModel(request));
+
+            return new UserId { Id = id };
         }
         catch (UserNotFoundException exception)
         {
@@ -119,11 +123,12 @@ public class GrpcUserService : UserServiceBase
     public override async Task<UserId> DeleteUser(UserId request, ServerCallContext context)
     {
         _logger.LogInformation("DeleteUser called. UserId: {Id}", request.Id);
+
         try
         {
-            int id = await _userService.Delete(request.Id);
-            
-            return new UserId() { Id = id };
+            var id = await _userService.Delete(request.Id);
+
+            return new UserId { Id = id };
         }
         catch (UserNotFoundException exception)
         {
