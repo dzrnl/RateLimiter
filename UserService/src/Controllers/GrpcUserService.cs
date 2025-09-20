@@ -27,37 +27,15 @@ public class GrpcUserService : UserServiceBase
     public override async Task<UserId> CreateUser(CreateUserRequest request, ServerCallContext context)
     {
         await _createValidator.ValidateAndThrowAsync(request);
-        try
-        {
-            var user = await _userService.Create(_mapper.ToCreateModel(request));
 
-            return new UserId { Id = user.Id };
-        }
-        catch (LoginConflictException exception)
-        {
-            throw new RpcException(new Status(
-                StatusCode.AlreadyExists,
-                exception.Message)
-            );
-        }
+        var user = await _userService.Create(_mapper.ToCreateModel(request));
+        return new UserId { Id = user.Id };
     }
 
     public override async Task<UserResponse> GetUserById(UserId request, ServerCallContext context)
     {
-        try
-        {
-            var model = await _userService.GetById(request.Id);
-
-            return _mapper.FromModel(model);
-        }
-        catch (UserNotFoundException exception)
-        {
-            throw new RpcException(new Status(
-                    StatusCode.NotFound,
-                    exception.Message
-                )
-            );
-        }
+        var model = await _userService.GetById(request.Id);
+        return _mapper.FromModel(model);
     }
 
     public override async Task GetUserByName(
@@ -76,37 +54,14 @@ public class GrpcUserService : UserServiceBase
     public override async Task<UserId> UpdateUser(UpdateUserRequest request, ServerCallContext context)
     {
         await _updateValidator.ValidateAndThrowAsync(request);
-        try
-        {
-            var user = await _userService.Update(_mapper.ToUpdateModel(request));
 
-            return new UserId { Id = user.Id };
-        }
-        catch (UserNotFoundException exception)
-        {
-            throw new RpcException(new Status(
-                    StatusCode.NotFound,
-                    exception.Message
-                )
-            );
-        }
+        var user = await _userService.Update(_mapper.ToUpdateModel(request));
+        return new UserId { Id = user.Id };
     }
 
     public override async Task<UserId> DeleteUser(UserId request, ServerCallContext context)
     {
-        try
-        {
-            var id = await _userService.Delete(request.Id);
-
-            return new UserId { Id = id };
-        }
-        catch (UserNotFoundException exception)
-        {
-            throw new RpcException(new Status(
-                    StatusCode.NotFound,
-                    exception.Message
-                )
-            );
-        }
+        var id = await _userService.Delete(request.Id);
+        return new UserId { Id = id };
     }
 }

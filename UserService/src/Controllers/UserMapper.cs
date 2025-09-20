@@ -12,5 +12,5 @@ public partial class UserMapper
     
     public partial CreateUserDto ToCreateModel(CreateUserRequest request);
     
-    public partial UpdateUserDto ToUpdateModel(UpdateUserRequest request);
+    public partial UpdateUserDto ToUpdateModel(UpdateUserRequest request); // TODO
 }
