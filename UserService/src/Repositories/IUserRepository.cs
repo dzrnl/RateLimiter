@@ -13,7 +13,7 @@ public interface IUserRepository
 
     Task<IEnumerable<UserModel>> GetUserByNameAsync(string name, string surname);
 
-    Task<int> UpdateUserAsync(UpdateUserDto dto);
+    Task<UserModel?> UpdateUserAsync(UpdateUserDto dto);
 
     Task<int?> DeleteUserAsync(int userId);
 }

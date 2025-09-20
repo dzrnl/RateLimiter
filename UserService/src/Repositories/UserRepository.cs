@@ -61,17 +61,19 @@ public class UserRepository : IUserRepository
         return _mapper.ToModel(userEntities);
     }
 
-    public async Task<int> UpdateUserAsync(UpdateUserDto dto)
+    public async Task<UserModel?> UpdateUserAsync(UpdateUserDto dto)
     {
         await using var connection = new NpgsqlConnection(_connectionString);
 
-        return await connection.ExecuteScalarAsync<int>(UserQueries.Update, dto);
+        var userEntity = await connection.QueryFirstOrDefaultAsync<UserEntity>(UserQueries.Update, dto);
+        
+        return userEntity is null ? null : _mapper.ToModel(userEntity);
     }
 
     public async Task<int?> DeleteUserAsync(int userId)
     {
         await using var connection = new NpgsqlConnection(_connectionString);
 
-        return await connection.ExecuteScalarAsync<int>(UserQueries.DeleteById, new { Id = userId });
+        return await connection.QueryFirstOrDefaultAsync<int?>(UserQueries.DeleteById, new { Id = userId });
     }
 }
