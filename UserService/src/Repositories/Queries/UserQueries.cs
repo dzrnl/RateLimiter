@@ -4,57 +4,15 @@ namespace UserService.Repositories.Queries;
 
 public static class UserQueries
 {
-    private const string TableName = "users";
+    public const string SelectById = "CALL get_user_by_id(@p_id, @o_id, @o_login, @o_password, @o_name, @o_surname, @o_age)";
 
-    private const string Columns = $"""
-                                    id AS {nameof(UserEntity.Id)},
-                                    login AS {nameof(UserEntity.Login)},
-                                    password AS {nameof(UserEntity.Password)},
-                                    name AS {nameof(UserEntity.Name)},
-                                    surname AS {nameof(UserEntity.Surname)},
-                                    age AS {nameof(UserEntity.Age)}
-                                    """;
+    public const string SelectByLogin ="CALL get_user_by_login(@p_login, @o_id, @o_login, @o_password, @o_name, @o_surname, @o_age)";
 
-    private const string IdColumn = $"id AS {nameof(UserEntity.Id)}";
+    public const string SelectAllByName = "SELECT * FROM get_users_by_name(@Name, @Surname)";
 
-    public const string SelectById = $"""
-                                      SELECT {Columns}
-                                      FROM {TableName}
-                                      WHERE id = @Id
-                                      """;
+    public const string Update = "CALL update_user(@p_id, @p_password, @p_name, @p_surname, @p_age, @o_id, @o_login, @o_password, @o_name, @o_surname, @o_age)";
 
-    public const string SelectByLogin = $"""
-                                         SELECT {Columns}
-                                         FROM {TableName}
-                                         WHERE login = @Login
-                                         """;
+    public const string Insert = "CALL insert_user(@p_login, @p_password, @p_name, @p_surname, @p_age, @o_id, @o_login, @o_password, @o_name, @o_surname, @o_age)";
 
-    public const string SelectAllByName = $"""
-                                           SELECT {Columns}
-                                           FROM {TableName}
-                                           WHERE name = @Name AND surname = @Surname
-                                           """;
-
-    public const string Update = $"""
-                                  UPDATE {TableName} 
-                                  SET password = COALESCE(@Password, password),
-                                      name = COALESCE(@Name, name),
-                                      surname = COALESCE(@Surname, surname),
-                                      age = COALESCE(@Age, age)
-                                  WHERE id = @Id
-                                  RETURNING {Columns}
-                                  """;
-
-    public const string Insert = $"""
-                                  INSERT INTO {TableName} 
-                                      (login, password, name, surname, age) 
-                                  VALUES (@Login, @Password, @Name, @Surname, @Age)
-                                  RETURNING {Columns}
-                                  """;
-
-    public const string DeleteById = $"""
-                                      DELETE FROM {TableName}
-                                      WHERE id = @Id
-                                      RETURNING {IdColumn}
-                                      """;
+    public const string DeleteById = "CALL delete_user(@p_id, @o_id)";
 }
