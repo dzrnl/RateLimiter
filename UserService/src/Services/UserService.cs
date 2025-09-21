@@ -19,7 +19,7 @@ public class UserService : IUserService
         await CreateUserSemaphore.WaitAsync(cancellationToken);
         try
         {
-            var existingUser = await _userRepository.GetByLoginAsync(dto.Login, cancellationToken);
+            var existingUser = await _userRepository.FindByLoginAsync(dto.Login, cancellationToken);
             if (existingUser != null)
             {
                 throw new LoginConflictException();
@@ -35,19 +35,19 @@ public class UserService : IUserService
 
     public async Task<UserModel> GetUserByIdAsync(int userId, CancellationToken cancellationToken)
     {
-        var user = await _userRepository.GetByIdAsync(userId, cancellationToken);
+        var user = await _userRepository.FindByIdAsync(userId, cancellationToken);
 
         if (user is null)
         {
-            throw UserNotFoundException.For(nameof(user.Id), userId);
+            throw UserNotFoundException.For(nameof(UserModel.Id), userId);
         }
 
         return user;
     }
 
-    public async Task<UserModel[]> FindUsersByNameAsync(string name, string surname, CancellationToken cancellationToken)
+    public Task<UserModel[]> FindUsersByNameAsync(string name, string surname, CancellationToken cancellationToken)
     {
-        return await _userRepository.FindByNameAsync(name, surname, cancellationToken);
+        return _userRepository.FindAllByNameAsync(name, surname, cancellationToken);
     }
 
     public async Task<UserModel> UpdateUserAsync(UpdateUserDto dto, CancellationToken cancellationToken)
@@ -56,7 +56,7 @@ public class UserService : IUserService
 
         if (updatedUser is null)
         {
-            throw UserNotFoundException.For(nameof(dto.Id), dto.Id);
+            throw UserNotFoundException.For(nameof(UserModel.Id), dto.Id);
         }
 
         return updatedUser;
@@ -68,7 +68,7 @@ public class UserService : IUserService
 
         if (deletedId is null)
         {
-            throw UserNotFoundException.For(nameof(userId), userId);
+            throw UserNotFoundException.For(nameof(UserModel.Id), userId);
         }
 
         return userId;

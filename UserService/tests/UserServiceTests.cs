@@ -28,7 +28,7 @@ public class UserServiceTests
         // Arrange
         var dto = _fixture.Create<CreateUserDto>();
 
-        _repositoryMock.Setup(r => r.GetByLoginAsync(dto.Login, It.IsAny<CancellationToken>()))
+        _repositoryMock.Setup(r => r.FindByLoginAsync(dto.Login, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new UserModel(1, dto.Login, dto.Password, dto.Name, dto.Surname, dto.Age));
 
         // Act & Assert
@@ -41,7 +41,7 @@ public class UserServiceTests
         // Arrange
         var dto = _fixture.Create<CreateUserDto>();
 
-        _repositoryMock.Setup(r => r.GetByLoginAsync(dto.Login, It.IsAny<CancellationToken>()))
+        _repositoryMock.Setup(r => r.FindByLoginAsync(dto.Login, It.IsAny<CancellationToken>()))
             .ReturnsAsync((UserModel?)null);
         _repositoryMock.Setup(r => r.AddAsync(dto, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new UserModel(1, dto.Login, dto.Password, dto.Name, dto.Surname, dto.Age));
@@ -59,7 +59,7 @@ public class UserServiceTests
     {
         // Arrange
         var user = _fixture.Create<UserModel>();
-        _repositoryMock.Setup(r => r.GetByIdAsync(user.Id, It.IsAny<CancellationToken>()))
+        _repositoryMock.Setup(r => r.FindByIdAsync(user.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(user);
 
         // Act
@@ -74,11 +74,37 @@ public class UserServiceTests
     public async Task GetUserById_WhenUserDoesNotExist_ThrowsUserNotFoundException()
     {
         // Arrange
-        _repositoryMock.Setup(r => r.GetByIdAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
+        _repositoryMock.Setup(r => r.FindByIdAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((UserModel?)null);
 
         // Act & Assert
         await Assert.ThrowsAsync<UserNotFoundException>(() => _userService.GetUserByIdAsync(1, CancellationToken.None));
+    }
+
+    [Fact]
+    public async Task FindUsersByName_WhenUsersExist_ReturnsUsers()
+    {
+        // Arrange
+        var name = _fixture.Create<string>();
+        var surname = _fixture.Create<string>();
+        var users = _fixture.Build<UserModel>()
+            .With(u => u.Name, name)
+            .With(u => u.Surname, surname)
+            .CreateMany(3)
+            .ToArray();
+
+        _repositoryMock.Setup(r => r.FindAllByNameAsync(name, surname, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(users);
+
+        // Act
+        var result = await _userService.FindUsersByNameAsync(name, surname, CancellationToken.None);
+
+        // Assert
+        Assert.Equal(users.Length, result.Length);
+        Assert.All(result, u => {
+            Assert.Equal(name, u.Name);
+            Assert.Equal(surname, u.Surname);
+        });
     }
 
     [Fact]
