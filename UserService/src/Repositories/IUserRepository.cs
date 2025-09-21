@@ -5,7 +5,7 @@ namespace UserService.Repositories;
 
 public interface IUserRepository
 {
-    Task<UserModel> AddAsync(CreateUserDto dto, CancellationToken cancellationToken = default); // лучше Add
+    Task<UserModel> AddAsync(CreateUserDto dto, CancellationToken cancellationToken = default);
 
     Task<UserModel?> GetByIdAsync(int userId, CancellationToken cancellationToken = default);
 

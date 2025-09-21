@@ -11,5 +11,5 @@ public partial class UserMapper
 
     public partial UserModel ToModel(UserEntity entity);
 
-    public partial IEnumerable<UserModel> ToModel(IEnumerable<UserEntity> entities);
+    public partial IEnumerable<UserModel> ToModels(IEnumerable<UserEntity> entities);
 }
