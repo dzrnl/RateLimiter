@@ -29,14 +29,14 @@ public class GrpcUserService : UserServiceBase
         await _createValidator.ValidateAndThrowAsync(request, context.CancellationToken);
 
         var createModel = _mapper.ToCreateModel(request);
-        var user = await _userService.CreateAsync(createModel, context.CancellationToken);
+        var user = await _userService.CreateUserAsync(createModel, context.CancellationToken);
 
         return new UserId { Id = user.Id };
     }
 
     public override async Task<UserResponse> GetUserById(UserId request, ServerCallContext context)
     {
-        var user = await _userService.GetByIdAsync(request.Id, context.CancellationToken);
+        var user = await _userService.GetUserByIdAsync(request.Id, context.CancellationToken);
         return _mapper.FromModel(user);
     }
 
@@ -45,7 +45,7 @@ public class GrpcUserService : UserServiceBase
         IServerStreamWriter<UserResponse> responseStream,
         ServerCallContext context)
     {
-        var users = await _userService.GetByNameAsync(request.Name, request.Surname, context.CancellationToken);
+        var users = await _userService.FindUsersByNameAsync(request.Name, request.Surname, context.CancellationToken);
 
         foreach (var user in users)
         {
@@ -57,14 +57,15 @@ public class GrpcUserService : UserServiceBase
     {
         await _updateValidator.ValidateAndThrowAsync(request, context.CancellationToken);
 
-        var user = await _userService.UpdateAsync(_mapper.ToUpdateModel(request), context.CancellationToken);
+        var updateModel = _mapper.ToUpdateModel(request);
+        var user = await _userService.UpdateUserAsync(updateModel, context.CancellationToken);
 
         return new UserId { Id = user.Id };
     }
 
     public override async Task<UserId> DeleteUser(UserId request, ServerCallContext context)
     {
-        var userId = await _userService.DeleteAsync(request.Id, context.CancellationToken);
+        var userId = await _userService.DeleteUserAsync(request.Id, context.CancellationToken);
         return new UserId { Id = userId };
     }
 }

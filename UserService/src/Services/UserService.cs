@@ -14,18 +14,18 @@ public class UserService : IUserService
         _userRepository = userRepository;
     }
 
-    public async Task<UserModel> CreateAsync(CreateUserDto dto, CancellationToken cancellationToken)
+    public async Task<UserModel> CreateUserAsync(CreateUserDto dto, CancellationToken cancellationToken)
     {
         await CreateUserSemaphore.WaitAsync(cancellationToken);
         try
         {
-            var existingUser = await _userRepository.GetUserByLoginAsync(dto.Login, cancellationToken);
+            var existingUser = await _userRepository.GetByLoginAsync(dto.Login, cancellationToken);
             if (existingUser != null)
             {
                 throw new LoginConflictException();
             }
 
-            return await _userRepository.CreateUserAsync(dto, cancellationToken);
+            return await _userRepository.AddAsync(dto, cancellationToken);
         }
         finally
         {
@@ -33,9 +33,9 @@ public class UserService : IUserService
         }
     }
 
-    public async Task<UserModel> GetByIdAsync(int userId, CancellationToken cancellationToken)
+    public async Task<UserModel> GetUserByIdAsync(int userId, CancellationToken cancellationToken)
     {
-        var user = await _userRepository.GetUserByIdAsync(userId, cancellationToken);
+        var user = await _userRepository.GetByIdAsync(userId, cancellationToken);
 
         if (user is null)
         {
@@ -45,14 +45,14 @@ public class UserService : IUserService
         return user;
     }
 
-    public async Task<UserModel[]> GetByNameAsync(string name, string surname, CancellationToken cancellationToken)
+    public async Task<UserModel[]> FindUsersByNameAsync(string name, string surname, CancellationToken cancellationToken)
     {
-        return await _userRepository.GetUsersByNameAsync(name, surname, cancellationToken);
+        return await _userRepository.FindByNameAsync(name, surname, cancellationToken);
     }
 
-    public async Task<UserModel> UpdateAsync(UpdateUserDto dto, CancellationToken cancellationToken)
+    public async Task<UserModel> UpdateUserAsync(UpdateUserDto dto, CancellationToken cancellationToken)
     {
-        var updatedUser = await _userRepository.UpdateUserAsync(dto, cancellationToken);
+        var updatedUser = await _userRepository.UpdateAsync(dto, cancellationToken);
 
         if (updatedUser is null)
         {
@@ -62,9 +62,9 @@ public class UserService : IUserService
         return updatedUser;
     }
 
-    public async Task<int> DeleteAsync(int userId, CancellationToken cancellationToken)
+    public async Task<int> DeleteUserAsync(int userId, CancellationToken cancellationToken)
     {
-        var deletedId = await _userRepository.DeleteUserAsync(userId, cancellationToken);
+        var deletedId = await _userRepository.DeleteAsync(userId, cancellationToken);
 
         if (deletedId is null)
         {

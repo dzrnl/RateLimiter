@@ -19,7 +19,7 @@ public class UserRepository : IUserRepository
         _mapper = mapper;
     }
 
-    public async Task<UserModel> CreateUserAsync(CreateUserDto dto, CancellationToken cancellationToken)
+    public async Task<UserModel> AddAsync(CreateUserDto dto, CancellationToken cancellationToken)
     {
         await using var connection = new NpgsqlConnection(_connectionString);
 
@@ -33,7 +33,7 @@ public class UserRepository : IUserRepository
         return _mapper.ToModel(userEntity);
     }
 
-    public async Task<UserModel?> GetUserByIdAsync(int userId, CancellationToken cancellationToken)
+    public async Task<UserModel?> GetByIdAsync(int userId, CancellationToken cancellationToken)
     {
         await using var connection = new NpgsqlConnection(_connectionString);
 
@@ -47,7 +47,7 @@ public class UserRepository : IUserRepository
         return userEntity is null ? null : _mapper.ToModel(userEntity);
     }
 
-    public async Task<UserModel?> GetUserByLoginAsync(string login, CancellationToken cancellationToken)
+    public async Task<UserModel?> GetByLoginAsync(string login, CancellationToken cancellationToken)
     {
         await using var connection = new NpgsqlConnection(_connectionString);
 
@@ -61,7 +61,7 @@ public class UserRepository : IUserRepository
         return userEntity is null ? null : _mapper.ToModel(userEntity);
     }
 
-    public async Task<UserModel[]> GetUsersByNameAsync(string name, string surname, CancellationToken cancellationToken)
+    public async Task<UserModel[]> FindByNameAsync(string name, string surname, CancellationToken cancellationToken)
     {
         await using var connection = new NpgsqlConnection(_connectionString);
 
@@ -75,7 +75,7 @@ public class UserRepository : IUserRepository
         return _mapper.ToModel(userEntities).ToArray();
     }
 
-    public async Task<UserModel?> UpdateUserAsync(UpdateUserDto dto, CancellationToken cancellationToken)
+    public async Task<UserModel?> UpdateAsync(UpdateUserDto dto, CancellationToken cancellationToken)
     {
         await using var connection = new NpgsqlConnection(_connectionString);
 
@@ -89,7 +89,7 @@ public class UserRepository : IUserRepository
         return userEntity is null ? null : _mapper.ToModel(userEntity);
     }
 
-    public async Task<int?> DeleteUserAsync(int userId, CancellationToken cancellationToken)
+    public async Task<int?> DeleteAsync(int userId, CancellationToken cancellationToken)
     {
         await using var connection = new NpgsqlConnection(_connectionString);
 

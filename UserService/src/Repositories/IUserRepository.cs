@@ -5,15 +5,15 @@ namespace UserService.Repositories;
 
 public interface IUserRepository
 {
-    Task<UserModel> CreateUserAsync(CreateUserDto dto, CancellationToken cancellationToken = default);
+    Task<UserModel> AddAsync(CreateUserDto dto, CancellationToken cancellationToken = default); // лучше Add
 
-    Task<UserModel?> GetUserByIdAsync(int userId, CancellationToken cancellationToken = default);
+    Task<UserModel?> GetByIdAsync(int userId, CancellationToken cancellationToken = default);
 
-    Task<UserModel?> GetUserByLoginAsync(string login, CancellationToken cancellationToken = default);
+    Task<UserModel?> GetByLoginAsync(string login, CancellationToken cancellationToken = default);
 
-    Task<UserModel[]> GetUsersByNameAsync(string name, string surname, CancellationToken cancellationToken = default);
+    Task<UserModel[]> FindByNameAsync(string name, string surname, CancellationToken cancellationToken = default);
 
-    Task<UserModel?> UpdateUserAsync(UpdateUserDto dto, CancellationToken cancellationToken = default);
+    Task<UserModel?> UpdateAsync(UpdateUserDto dto, CancellationToken cancellationToken = default);
 
-    Task<int?> DeleteUserAsync(int userId, CancellationToken cancellationToken = default);
+    Task<int?> DeleteAsync(int userId, CancellationToken cancellationToken = default);
 }
