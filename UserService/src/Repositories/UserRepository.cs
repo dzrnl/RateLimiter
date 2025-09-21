@@ -19,61 +19,85 @@ public class UserRepository : IUserRepository
         _mapper = mapper;
     }
 
-    public async Task<UserModel> CreateUserAsync(CreateUserDto dto)
+    public async Task<UserModel> CreateUserAsync(CreateUserDto dto, CancellationToken cancellationToken)
     {
         await using var connection = new NpgsqlConnection(_connectionString);
 
-        var userEntity = await connection.QueryFirstAsync<UserEntity>(UserQueries.Insert, dto);
+        var command = new CommandDefinition(
+            UserQueries.Insert,
+            parameters: dto,
+            cancellationToken: cancellationToken);
+
+        var userEntity = await connection.QueryFirstAsync<UserEntity>(command);
 
         return _mapper.ToModel(userEntity);
     }
 
-    public async Task<UserModel?> GetUserByIdAsync(int userId)
+    public async Task<UserModel?> GetUserByIdAsync(int userId, CancellationToken cancellationToken)
     {
         await using var connection = new NpgsqlConnection(_connectionString);
 
-        var userEntity = await connection.QueryFirstOrDefaultAsync<UserEntity>(
+        var command = new CommandDefinition(
             UserQueries.SelectById,
-            new { Id = userId });
+            parameters: new { Id = userId },
+            cancellationToken: cancellationToken);
+        
+        var userEntity = await connection.QueryFirstOrDefaultAsync<UserEntity>(command);
 
         return userEntity is null ? null : _mapper.ToModel(userEntity);
     }
 
-    public async Task<UserModel?> GetUserByLoginAsync(string login)
+    public async Task<UserModel?> GetUserByLoginAsync(string login, CancellationToken cancellationToken)
     {
         await using var connection = new NpgsqlConnection(_connectionString);
 
-        var userEntity = await connection.QueryFirstOrDefaultAsync<UserEntity>(
+        var command = new CommandDefinition(
             UserQueries.SelectByLogin,
-            new { Login = login });
+            parameters: new { Login = login },
+            cancellationToken: cancellationToken);
+        
+        var userEntity = await connection.QueryFirstOrDefaultAsync<UserEntity>(command);
 
         return userEntity is null ? null : _mapper.ToModel(userEntity);
     }
 
-    public async Task<UserModel[]> GetUsersByNameAsync(string name, string surname)
+    public async Task<UserModel[]> GetUsersByNameAsync(string name, string surname, CancellationToken cancellationToken)
     {
         await using var connection = new NpgsqlConnection(_connectionString);
 
-        var userEntities = await connection.QueryAsync<UserEntity>(
+        var command = new CommandDefinition(
             UserQueries.SelectAllByName,
-            new { Name = name, Surname = surname });
+            parameters: new { Name = name, Surname = surname },
+            cancellationToken: cancellationToken);
+        
+        var userEntities = await connection.QueryAsync<UserEntity>(command);
 
         return _mapper.ToModel(userEntities).ToArray();
     }
 
-    public async Task<UserModel?> UpdateUserAsync(UpdateUserDto dto)
+    public async Task<UserModel?> UpdateUserAsync(UpdateUserDto dto, CancellationToken cancellationToken)
     {
         await using var connection = new NpgsqlConnection(_connectionString);
 
-        var userEntity = await connection.QueryFirstOrDefaultAsync<UserEntity>(UserQueries.Update, dto);
+        var command = new CommandDefinition(
+            UserQueries.Update,
+            parameters: dto,
+            cancellationToken: cancellationToken);
+        
+        var userEntity = await connection.QueryFirstOrDefaultAsync<UserEntity>(command);
 
         return userEntity is null ? null : _mapper.ToModel(userEntity);
     }
 
-    public async Task<int?> DeleteUserAsync(int userId)
+    public async Task<int?> DeleteUserAsync(int userId, CancellationToken cancellationToken)
     {
         await using var connection = new NpgsqlConnection(_connectionString);
 
-        return await connection.QueryFirstOrDefaultAsync<int?>(UserQueries.DeleteById, new { Id = userId });
+        var command = new CommandDefinition(
+            UserQueries.DeleteById,
+            parameters: new { Id = userId },
+            cancellationToken: cancellationToken);
+        
+        return await connection.QueryFirstOrDefaultAsync<int?>(command);
     }
 }

@@ -60,6 +60,10 @@ public class ExceptionInterceptor : Interceptor
                 _logger.LogWarning("Validation failed for request: {@Request}. Message: {Message}", request, ve.Message);
                 return new RpcException(new Status(StatusCode.InvalidArgument, ve.Message));
 
+            case OperationCanceledException oce:
+                _logger.LogWarning("Request was cancelled: {@Request}. Message: {Message}", request, oce.Message);
+                return new RpcException(new Status(StatusCode.Cancelled, "Request was cancelled"));
+
             default:
                 _logger.LogError("Unhandled exception for request: {@Request}. Message: {Message}", request, ex.Message);
                 return new RpcException(new Status(StatusCode.Internal, "Internal server error"));

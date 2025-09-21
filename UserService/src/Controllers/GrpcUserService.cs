@@ -26,15 +26,17 @@ public class GrpcUserService : UserServiceBase
 
     public override async Task<UserId> CreateUser(CreateUserRequest request, ServerCallContext context)
     {
-        await _createValidator.ValidateAndThrowAsync(request);
+        await _createValidator.ValidateAndThrowAsync(request, context.CancellationToken);
 
-        var user = await _userService.CreateAsync(_mapper.ToCreateModel(request));
+        var createModel = _mapper.ToCreateModel(request);
+        var user = await _userService.CreateAsync(createModel, context.CancellationToken);
+
         return new UserId { Id = user.Id };
     }
 
     public override async Task<UserResponse> GetUserById(UserId request, ServerCallContext context)
     {
-        var user = await _userService.GetByIdAsync(request.Id);
+        var user = await _userService.GetByIdAsync(request.Id, context.CancellationToken);
         return _mapper.FromModel(user);
     }
 
@@ -43,25 +45,26 @@ public class GrpcUserService : UserServiceBase
         IServerStreamWriter<UserResponse> responseStream,
         ServerCallContext context)
     {
-        var users = await _userService.GetByNameAsync(request.Name, request.Surname);
+        var users = await _userService.GetByNameAsync(request.Name, request.Surname, context.CancellationToken);
 
         foreach (var user in users)
         {
-            await responseStream.WriteAsync(_mapper.FromModel(user));
+            await responseStream.WriteAsync(_mapper.FromModel(user), context.CancellationToken);
         }
     }
 
     public override async Task<UserId> UpdateUser(UpdateUserRequest request, ServerCallContext context)
     {
-        await _updateValidator.ValidateAndThrowAsync(request);
+        await _updateValidator.ValidateAndThrowAsync(request, context.CancellationToken);
 
-        var user = await _userService.UpdateAsync(_mapper.ToUpdateModel(request));
+        var user = await _userService.UpdateAsync(_mapper.ToUpdateModel(request), context.CancellationToken);
+
         return new UserId { Id = user.Id };
     }
 
     public override async Task<UserId> DeleteUser(UserId request, ServerCallContext context)
     {
-        var userId = await _userService.DeleteAsync(request.Id);
+        var userId = await _userService.DeleteAsync(request.Id, context.CancellationToken);
         return new UserId { Id = userId };
     }
 }
