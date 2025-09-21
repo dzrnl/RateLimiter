@@ -19,7 +19,7 @@ public class UserService : IUserService
         await CreateUserSemaphore.WaitAsync(cancellationToken);
         try
         {
-            var existingUser = await _userRepository.GetByLoginAsync(dto.Login, cancellationToken);
+            var existingUser = await _userRepository.FindByLoginAsync(dto.Login, cancellationToken);
             if (existingUser != null)
             {
                 throw new LoginConflictException();
@@ -35,7 +35,7 @@ public class UserService : IUserService
 
     public async Task<UserModel> GetUserByIdAsync(int userId, CancellationToken cancellationToken)
     {
-        var user = await _userRepository.GetByIdAsync(userId, cancellationToken);
+        var user = await _userRepository.FindByIdAsync(userId, cancellationToken);
 
         if (user is null)
         {
@@ -47,7 +47,7 @@ public class UserService : IUserService
 
     public Task<UserModel[]> FindUsersByNameAsync(string name, string surname, CancellationToken cancellationToken)
     {
-        return _userRepository.FindByNameAsync(name, surname, cancellationToken);
+        return _userRepository.FindAllByNameAsync(name, surname, cancellationToken);
     }
 
     public async Task<UserModel> UpdateUserAsync(UpdateUserDto dto, CancellationToken cancellationToken)

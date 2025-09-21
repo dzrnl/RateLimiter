@@ -33,7 +33,7 @@ public class UserRepository : IUserRepository
         return _mapper.ToModel(userEntity);
     }
 
-    public async Task<UserModel?> GetByIdAsync(int userId, CancellationToken cancellationToken)
+    public async Task<UserModel?> FindByIdAsync(int userId, CancellationToken cancellationToken)
     {
         await using var connection = new NpgsqlConnection(_connectionString);
 
@@ -47,7 +47,7 @@ public class UserRepository : IUserRepository
         return userEntity is null ? null : _mapper.ToModel(userEntity);
     }
 
-    public async Task<UserModel?> GetByLoginAsync(string login, CancellationToken cancellationToken)
+    public async Task<UserModel?> FindByLoginAsync(string login, CancellationToken cancellationToken)
     {
         await using var connection = new NpgsqlConnection(_connectionString);
 
@@ -61,7 +61,7 @@ public class UserRepository : IUserRepository
         return userEntity is null ? null : _mapper.ToModel(userEntity);
     }
 
-    public async Task<UserModel[]> FindByNameAsync(string name, string surname, CancellationToken cancellationToken)
+    public async Task<UserModel[]> FindAllByNameAsync(string name, string surname, CancellationToken cancellationToken)
     {
         await using var connection = new NpgsqlConnection(_connectionString);
 

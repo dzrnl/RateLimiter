@@ -40,7 +40,7 @@ public class GrpcUserService : UserServiceBase
         return _mapper.FromModel(user);
     }
 
-    public override async Task GetUserByName(
+    public override async Task GetUsersByName(
         UserFullName request,
         IServerStreamWriter<UserResponse> responseStream,
         ServerCallContext context)
