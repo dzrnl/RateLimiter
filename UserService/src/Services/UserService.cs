@@ -45,9 +45,9 @@ public class UserService : IUserService
         return user;
     }
 
-    public async Task<UserModel[]> FindUsersByNameAsync(string name, string surname, CancellationToken cancellationToken)
+    public Task<UserModel[]> FindUsersByNameAsync(string name, string surname, CancellationToken cancellationToken)
     {
-        return await _userRepository.FindByNameAsync(name, surname, cancellationToken);
+        return _userRepository.FindByNameAsync(name, surname, cancellationToken);
     }
 
     public async Task<UserModel> UpdateUserAsync(UpdateUserDto dto, CancellationToken cancellationToken)
