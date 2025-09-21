@@ -39,7 +39,7 @@ public class UserService : IUserService
 
         if (user is null)
         {
-            throw UserNotFoundException.For(nameof(user.Id), userId);
+            throw UserNotFoundException.For(nameof(UserModel.Id), userId);
         }
 
         return user;
@@ -56,7 +56,7 @@ public class UserService : IUserService
 
         if (updatedUser is null)
         {
-            throw UserNotFoundException.For(nameof(dto.Id), dto.Id);
+            throw UserNotFoundException.For(nameof(UserModel.Id), dto.Id);
         }
 
         return updatedUser;
@@ -68,7 +68,7 @@ public class UserService : IUserService
 
         if (deletedId is null)
         {
-            throw UserNotFoundException.For(nameof(userId), userId);
+            throw UserNotFoundException.For(nameof(UserModel.Id), userId);
         }
 
         return userId;
