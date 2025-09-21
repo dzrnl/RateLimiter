@@ -132,7 +132,7 @@ public class UserRepository : IUserRepository
         
         var userEntities = await connection.QueryAsync<UserEntity>(command);
 
-        return _mapper.ToModel(userEntities).ToArray();
+        return _mapper.ToModels(userEntities).ToArray();
     }
 
     public async Task<UserModel?> UpdateAsync(UpdateUserDto dto, CancellationToken cancellationToken)
