@@ -41,7 +41,7 @@ public class UserRepository : IUserRepository
             UserQueries.SelectById,
             parameters: new { Id = userId },
             cancellationToken: cancellationToken);
-        
+
         var userEntity = await connection.QueryFirstOrDefaultAsync<UserEntity>(command);
 
         return userEntity is null ? null : _mapper.ToModel(userEntity);
@@ -55,7 +55,7 @@ public class UserRepository : IUserRepository
             UserQueries.SelectByLogin,
             parameters: new { Login = login },
             cancellationToken: cancellationToken);
-        
+
         var userEntity = await connection.QueryFirstOrDefaultAsync<UserEntity>(command);
 
         return userEntity is null ? null : _mapper.ToModel(userEntity);
@@ -69,7 +69,7 @@ public class UserRepository : IUserRepository
             UserQueries.SelectAllByName,
             parameters: new { Name = name, Surname = surname },
             cancellationToken: cancellationToken);
-        
+
         var userEntities = await connection.QueryAsync<UserEntity>(command);
 
         return _mapper.ToModels(userEntities).ToArray();
@@ -83,7 +83,7 @@ public class UserRepository : IUserRepository
             UserQueries.Update,
             parameters: dto,
             cancellationToken: cancellationToken);
-        
+
         var userEntity = await connection.QueryFirstOrDefaultAsync<UserEntity>(command);
 
         return userEntity is null ? null : _mapper.ToModel(userEntity);
@@ -97,7 +97,7 @@ public class UserRepository : IUserRepository
             UserQueries.DeleteById,
             parameters: new { Id = userId },
             cancellationToken: cancellationToken);
-        
+
         return await connection.QueryFirstOrDefaultAsync<int?>(command);
     }
 }

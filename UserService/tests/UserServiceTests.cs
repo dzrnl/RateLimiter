@@ -82,6 +82,32 @@ public class UserServiceTests
     }
 
     [Fact]
+    public async Task FindUsersByName_WhenUsersExist_ReturnsUsers()
+    {
+        // Arrange
+        var name = _fixture.Create<string>();
+        var surname = _fixture.Create<string>();
+        var users = _fixture.Build<UserModel>()
+            .With(u => u.Name, name)
+            .With(u => u.Surname, surname)
+            .CreateMany(3)
+            .ToArray();
+
+        _repositoryMock.Setup(r => r.FindAllByNameAsync(name, surname, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(users);
+
+        // Act
+        var result = await _userService.FindUsersByNameAsync(name, surname, CancellationToken.None);
+
+        // Assert
+        Assert.Equal(users.Length, result.Length);
+        Assert.All(result, u => {
+            Assert.Equal(name, u.Name);
+            Assert.Equal(surname, u.Surname);
+        });
+    }
+
+    [Fact]
     public async Task UpdateUser_WhenUserDoesNotExist_ThrowsUserNotFoundException()
     {
         // Arrange
