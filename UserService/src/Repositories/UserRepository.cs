@@ -31,9 +31,12 @@ public class UserRepository : IUserRepository
         parameters.Add("p_surname", dto.Surname, DbType.String);
         parameters.Add("p_age", dto.Age, DbType.Int32);
 
-        var entity = await connection.QuerySingleAsync<UserEntity>(
-            UserQueries.Insert,
-            parameters);
+        var command = new CommandDefinition(
+            commandText: UserQueries.Insert,
+            parameters: parameters,
+            cancellationToken: cancellationToken);
+
+        var entity = await connection.QuerySingleAsync<UserEntity>(command);
 
         return _mapper.ToModel(entity);
     }
@@ -45,9 +48,12 @@ public class UserRepository : IUserRepository
         var parameters = new DynamicParameters();
         parameters.Add("p_id", userId, DbType.Int32);
 
-        var entity = await connection.QuerySingleOrDefaultAsync<UserEntity>(
+        var command = new CommandDefinition(
             UserQueries.SelectById,
-            parameters);
+            parameters,
+            cancellationToken: cancellationToken);
+        
+        var entity = await connection.QuerySingleOrDefaultAsync<UserEntity>(command);
 
         return entity == null ? null : _mapper.ToModel(entity);
     }
@@ -59,9 +65,12 @@ public class UserRepository : IUserRepository
         var parameters = new DynamicParameters();
         parameters.Add("p_login", login, DbType.String);
 
-        var entity = await connection.QuerySingleOrDefaultAsync<UserEntity>(
+        var command = new CommandDefinition(
             UserQueries.SelectByLogin,
-            parameters);
+            parameters,
+            cancellationToken: cancellationToken);
+
+        var entity = await connection.QuerySingleOrDefaultAsync<UserEntity>(command);
 
         return entity == null ? null : _mapper.ToModel(entity);
     }
@@ -74,9 +83,12 @@ public class UserRepository : IUserRepository
         parameters.Add("p_name", name, DbType.String);
         parameters.Add("p_surname", surname, DbType.String);
 
-        var entities = await connection.QueryAsync<UserEntity>(
+        var command = new CommandDefinition(
             UserQueries.SelectAllByName,
-            parameters);
+            parameters,
+            cancellationToken: cancellationToken);
+
+        var entities = await connection.QueryAsync<UserEntity>(command);
 
         return _mapper.ToModels(entities).ToArray();
     }
@@ -92,9 +104,12 @@ public class UserRepository : IUserRepository
         parameters.Add("p_surname", dto.Surname, DbType.String);
         parameters.Add("p_age", dto.Age, DbType.Int32);
 
-        var entity = await connection.QuerySingleOrDefaultAsync<UserEntity>(
+        var command = new CommandDefinition(
             UserQueries.Update,
-            parameters);
+            parameters,
+            cancellationToken: cancellationToken);
+
+        var entity = await connection.QuerySingleOrDefaultAsync<UserEntity>(command);
 
         return entity == null ? null : _mapper.ToModel(entity);
     }
@@ -106,9 +121,12 @@ public class UserRepository : IUserRepository
         var parameters = new DynamicParameters();
         parameters.Add("p_id", userId, DbType.Int32);
 
-        var deletedId = await connection.QueryFirstOrDefaultAsync<int>(
+        var command = new CommandDefinition(
             UserQueries.DeleteById,
-            parameters);
+            parameters,
+            cancellationToken: cancellationToken);
+
+        var deletedId = await connection.QueryFirstOrDefaultAsync<int>(command);
 
         return deletedId;
     }
