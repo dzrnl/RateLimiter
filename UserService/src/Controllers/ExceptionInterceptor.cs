@@ -65,7 +65,7 @@ public class ExceptionInterceptor : Interceptor
                 return new RpcException(new Status(StatusCode.Cancelled, "Request was cancelled"));
 
             default:
-                _logger.LogError("Unhandled exception for request: {@Request}. Message: {Message}", request, ex.Message);
+                _logger.LogError(ex, "Unhandled exception for request: {@Request}. Message: {Message}", request, ex.Message);
                 return new RpcException(new Status(StatusCode.Internal, "Internal server error"));
         }
     }
