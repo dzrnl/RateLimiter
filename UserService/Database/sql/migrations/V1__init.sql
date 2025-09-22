@@ -28,10 +28,10 @@ CREATE OR REPLACE PROCEDURE insert_user(
 )
 LANGUAGE plpgsql AS $$
 BEGIN
-INSERT INTO users (login, password, name, surname, age)
-VALUES (p_login, p_password, p_name, p_surname, p_age)
+    INSERT INTO users (login, password, name, surname, age)
+    VALUES (p_login, p_password, p_name, p_surname, p_age)
     RETURNING id, login, password, name, surname, age
-INTO o_id, o_login, o_password, o_name, o_surname, o_age;
+    INTO o_id, o_login, o_password, o_name, o_surname, o_age;
 END;
 $$;
 
@@ -87,10 +87,10 @@ RETURNS TABLE (
     age INT
 ) AS $$
 BEGIN
-RETURN QUERY
-SELECT u.id, u.login, u.password, u.name, u.surname, u.age
-FROM users u
-WHERE u.name = p_name AND u.surname = p_surname;
+    RETURN QUERY
+    SELECT u.id, u.login, u.password, u.name, u.surname, u.age
+    FROM users u
+    WHERE u.name = p_name AND u.surname = p_surname;
 END;
 $$ LANGUAGE plpgsql;
 
