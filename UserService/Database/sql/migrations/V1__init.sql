@@ -13,68 +13,71 @@ CREATE INDEX name_surname_idx on users USING BTREE(name, surname);
 CREATE INDEX login_idx on users(login);
 
 
-CREATE OR REPLACE PROCEDURE insert_user(
-    IN p_login VARCHAR,
-    IN p_password VARCHAR,
-    IN p_name VARCHAR,
-    IN p_surname VARCHAR,
-    IN p_age INT,
-    OUT o_id INT,
-    OUT o_login VARCHAR,
-    OUT o_password VARCHAR,
-    OUT o_name VARCHAR,
-    OUT o_surname VARCHAR,
-    OUT o_age INT
+CREATE OR REPLACE FUNCTION insert_user_fn(
+    p_login VARCHAR,
+    p_password VARCHAR,
+    p_name VARCHAR,
+    p_surname VARCHAR,
+    p_age INT
 )
-LANGUAGE plpgsql AS $$
+RETURNS TABLE (
+    id INT,
+    login VARCHAR,
+    password VARCHAR,
+    name VARCHAR,
+    surname VARCHAR,
+    age INT
+) AS $$
 BEGIN
+    RETURN QUERY
     INSERT INTO users (login, password, name, surname, age)
     VALUES (p_login, p_password, p_name, p_surname, p_age)
-    RETURNING id, login, password, name, surname, age
-    INTO o_id, o_login, o_password, o_name, o_surname, o_age;
+    RETURNING users.id, users.login, users.password, users.name, users.surname, users.age;
 END;
-$$;
+$$ LANGUAGE plpgsql;
 
 
-CREATE OR REPLACE PROCEDURE get_user_by_id(
-    IN p_id INT,
-    OUT o_id INT,
-    OUT o_login VARCHAR,
-    OUT o_password VARCHAR,
-    OUT o_name VARCHAR,
-    OUT o_surname VARCHAR,
-    OUT o_age INT
+CREATE OR REPLACE FUNCTION get_user_by_id_fn(
+    p_id INT
 )
-LANGUAGE plpgsql AS $$
+RETURNS TABLE (
+    id INT,
+    login VARCHAR,
+    password VARCHAR,
+    name VARCHAR,
+    surname VARCHAR,
+    age INT
+) AS $$
 BEGIN
-    SELECT id, login, password, name, surname, age
-    INTO o_id, o_login, o_password, o_name, o_surname, o_age
-    FROM users
-    WHERE id = p_id;
+    RETURN QUERY
+    SELECT u.id, u.login, u.password, u.name, u.surname, u.age
+    FROM users u
+    WHERE u.id = p_id;
 END;
-$$;
+$$ LANGUAGE plpgsql;
 
 
-CREATE OR REPLACE PROCEDURE get_user_by_login(
-    IN p_login VARCHAR,
-    OUT o_id INT,
-    OUT o_login VARCHAR,
-    OUT o_password VARCHAR,
-    OUT o_name VARCHAR,
-    OUT o_surname VARCHAR,
-    OUT o_age INT
+CREATE OR REPLACE FUNCTION get_user_by_login_fn(
+    p_login VARCHAR
 )
-LANGUAGE plpgsql AS $$
+RETURNS TABLE (
+    id INT,
+    login VARCHAR,
+    password VARCHAR,
+    name VARCHAR,
+    surname VARCHAR,
+    age INT
+) AS $$
 BEGIN
-    SELECT id, login, password, name, surname, age
-    INTO o_id, o_login, o_password, o_name, o_surname, o_age
-    FROM users
-    WHERE login = p_login;
+    RETURN QUERY
+    SELECT u.id, u.login, u.password, u.name, u.surname, u.age
+    FROM users u
+    WHERE u.login = p_login;
 END;
-$$;
+$$ LANGUAGE plpgsql;
 
 
-CREATE OR REPLACE FUNCTION get_users_by_name(
+CREATE OR REPLACE FUNCTION get_users_by_name_fn(
     p_name VARCHAR,
     p_surname VARCHAR
 )
@@ -95,41 +98,44 @@ END;
 $$ LANGUAGE plpgsql;
 
 
-CREATE OR REPLACE PROCEDURE update_user(
-    IN p_id INT,
-    IN p_password VARCHAR,
-    IN p_name VARCHAR,
-    IN p_surname VARCHAR,
-    IN p_age INT,
-    OUT o_id INT,
-    OUT o_login VARCHAR,
-    OUT o_password VARCHAR,
-    OUT o_name VARCHAR,
-    OUT o_surname VARCHAR,
-    OUT o_age INT
+CREATE OR REPLACE FUNCTION update_user_fn(
+    p_id INT,
+    p_password VARCHAR,
+    p_name VARCHAR,
+    p_surname VARCHAR,
+    p_age INT
 )
-LANGUAGE plpgsql AS $$
+RETURNS TABLE (
+    id INT,
+    login VARCHAR,
+    password VARCHAR,
+    name VARCHAR,
+    surname VARCHAR,
+    age INT
+) AS $$
 BEGIN
-    UPDATE users
-    SET password = COALESCE(p_password, password),
-        name = COALESCE(p_name, name),
-        surname = COALESCE(p_surname, surname),
-        age = COALESCE(p_age, age)
-    WHERE id = p_id
-    RETURNING id, login, password, name, surname, age
-    INTO o_id, o_login, o_password, o_name, o_surname, o_age;
+    RETURN QUERY
+    UPDATE users u
+    SET password = COALESCE(p_password, u.password),
+        name = COALESCE(p_name, u.name),
+        surname = COALESCE(p_surname, u.surname),
+        age = COALESCE(p_age, u.age)
+    WHERE u.id = p_id
+    RETURNING u.id, u.login, u.password, u.name, u.surname, u.age;
 END;
-$$;
+$$ LANGUAGE plpgsql;
 
 
-CREATE OR REPLACE PROCEDURE delete_user(
-    IN p_id INT,
-    OUT o_id INT
+CREATE OR REPLACE FUNCTION delete_user_fn(
+    p_id INT
 )
-LANGUAGE plpgsql AS $$
+RETURNS TABLE (
+    id INT
+) AS $$
 BEGIN
-    DELETE FROM users
-    WHERE id = p_id
-    RETURNING id INTO o_id;
+    RETURN QUERY
+    DELETE FROM users u
+    WHERE u.id = p_id
+    RETURNING u.id;
 END;
-$$;
+$$ LANGUAGE plpgsql;

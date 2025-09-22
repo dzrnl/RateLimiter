@@ -24,34 +24,16 @@ public class UserRepository : IUserRepository
     {
         await using var connection = new NpgsqlConnection(_connectionString);
 
-        var p = new DynamicParameters();
-        p.Add("p_login", dto.Login);
-        p.Add("p_password", dto.Password);
-        p.Add("p_name", dto.Name);
-        p.Add("p_surname", dto.Surname);
-        p.Add("p_age", dto.Age);
+        var parameters = new DynamicParameters();
+        parameters.Add("p_login", dto.Login, DbType.String);
+        parameters.Add("p_password", dto.Password, DbType.String);
+        parameters.Add("p_name", dto.Name, DbType.String);
+        parameters.Add("p_surname", dto.Surname, DbType.String);
+        parameters.Add("p_age", dto.Age, DbType.Int32);
 
-        p.Add("o_id", dbType: DbType.Int32, direction: ParameterDirection.Output);
-        p.Add("o_login", dbType: DbType.String, size: 255, direction: ParameterDirection.Output);
-        p.Add("o_password", dbType: DbType.String, size: 255, direction: ParameterDirection.Output);
-        p.Add("o_name", dbType: DbType.String, size: 255, direction: ParameterDirection.Output);
-        p.Add("o_surname", dbType: DbType.String, size: 255, direction: ParameterDirection.Output);
-        p.Add("o_age", dbType: DbType.Int32, direction: ParameterDirection.Output);
-
-        await connection.ExecuteAsync(new CommandDefinition(
+        var entity = await connection.QuerySingleAsync<UserEntity>(
             UserQueries.Insert,
-            p,
-            cancellationToken: cancellationToken));
-
-        var entity = new UserEntity
-        {
-            Id = p.Get<int>("o_id"),
-            Login = p.Get<string>("o_login"),
-            Password = p.Get<string>("o_password"),
-            Name = p.Get<string>("o_name"),
-            Surname = p.Get<string>("o_surname"),
-            Age = p.Get<int>("o_age")
-        };
+            parameters);
 
         return _mapper.ToModel(entity);
     }
@@ -60,146 +42,74 @@ public class UserRepository : IUserRepository
     {
         await using var connection = new NpgsqlConnection(_connectionString);
 
-        var p = new DynamicParameters();
-        p.Add("p_id", userId);
-        p.Add("o_id", dbType: DbType.Int32, direction: ParameterDirection.Output);
-        p.Add("o_login", dbType: DbType.String, size: 255, direction: ParameterDirection.Output);
-        p.Add("o_password", dbType: DbType.String, size: 255, direction: ParameterDirection.Output);
-        p.Add("o_name", dbType: DbType.String, size: 255, direction: ParameterDirection.Output);
-        p.Add("o_surname", dbType: DbType.String, size: 255, direction: ParameterDirection.Output);
-        p.Add("o_age", dbType: DbType.Int32, direction: ParameterDirection.Output);
+        var parameters = new DynamicParameters();
+        parameters.Add("p_id", userId, DbType.Int32);
 
-        await connection.ExecuteAsync(new CommandDefinition(
+        var entity = await connection.QuerySingleOrDefaultAsync<UserEntity>(
             UserQueries.SelectById,
-            p,
-            cancellationToken: cancellationToken));
+            parameters);
 
-        if (p.Get<int?>("o_id") is null)
-        {
-            return null;
-        }
-
-        var entity = new UserEntity
-        {
-            Id = p.Get<int>("o_id"),
-            Login = p.Get<string>("o_login"),
-            Password = p.Get<string>("o_password"),
-            Name = p.Get<string>("o_name"),
-            Surname = p.Get<string>("o_surname"),
-            Age = p.Get<int>("o_age")
-        };
-
-        return _mapper.ToModel(entity);
+        return entity == null ? null : _mapper.ToModel(entity);
     }
 
     public async Task<UserModel?> FindByLoginAsync(string login, CancellationToken cancellationToken)
     {
         await using var connection = new NpgsqlConnection(_connectionString);
 
-        var p = new DynamicParameters();
-        p.Add("p_login", login);
-        p.Add("o_id", dbType: DbType.Int32, direction: ParameterDirection.Output);
-        p.Add("o_login", dbType: DbType.String, size: 255, direction: ParameterDirection.Output);
-        p.Add("o_password", dbType: DbType.String, size: 255, direction: ParameterDirection.Output);
-        p.Add("o_name", dbType: DbType.String, size: 255, direction: ParameterDirection.Output);
-        p.Add("o_surname", dbType: DbType.String, size: 255, direction: ParameterDirection.Output);
-        p.Add("o_age", dbType: DbType.Int32, direction: ParameterDirection.Output);
+        var parameters = new DynamicParameters();
+        parameters.Add("p_login", login, DbType.String);
 
-        await connection.ExecuteAsync(new CommandDefinition(
+        var entity = await connection.QuerySingleOrDefaultAsync<UserEntity>(
             UserQueries.SelectByLogin,
-            p,
-            cancellationToken: cancellationToken));
+            parameters);
 
-        if (p.Get<int?>("o_id") is null)
-        {
-            return null;
-        }
-
-        var entity = new UserEntity
-        {
-            Id = p.Get<int>("o_id"),
-            Login = p.Get<string>("o_login"),
-            Password = p.Get<string>("o_password"),
-            Name = p.Get<string>("o_name"),
-            Surname = p.Get<string>("o_surname"),
-            Age = p.Get<int>("o_age")
-        };
-
-        return _mapper.ToModel(entity);
+        return entity == null ? null : _mapper.ToModel(entity);
     }
 
     public async Task<UserModel[]> FindAllByNameAsync(string name, string surname, CancellationToken cancellationToken)
     {
         await using var connection = new NpgsqlConnection(_connectionString);
 
-        var p = new DynamicParameters();
-        p.Add("Name", name);
-        p.Add("Surname", surname);
+        var parameters = new DynamicParameters();
+        parameters.Add("p_name", name, DbType.String);
+        parameters.Add("p_surname", surname, DbType.String);
 
-        var command = new CommandDefinition(
+        var entities = await connection.QueryAsync<UserEntity>(
             UserQueries.SelectAllByName,
-            p,
-            cancellationToken: cancellationToken);
+            parameters);
 
-        var userEntities = await connection.QueryAsync<UserEntity>(command);
-
-        return _mapper.ToModels(userEntities).ToArray();
+        return _mapper.ToModels(entities).ToArray();
     }
 
     public async Task<UserModel?> UpdateAsync(UpdateUserDto dto, CancellationToken cancellationToken)
     {
         await using var connection = new NpgsqlConnection(_connectionString);
 
-        var p = new DynamicParameters();
-        p.Add("p_id", dto.Id);
-        p.Add("p_password", dto.Password);
-        p.Add("p_name", dto.Name);
-        p.Add("p_surname", dto.Surname);
-        p.Add("p_age", dto.Age);
+        var parameters = new DynamicParameters();
+        parameters.Add("p_id", dto.Id, DbType.Int32);
+        parameters.Add("p_password", dto.Password, DbType.String);
+        parameters.Add("p_name", dto.Name, DbType.String);
+        parameters.Add("p_surname", dto.Surname, DbType.String);
+        parameters.Add("p_age", dto.Age, DbType.Int32);
 
-        p.Add("o_id", dbType: DbType.Int32, direction: ParameterDirection.Output);
-        p.Add("o_login", dbType: DbType.String, size: 255, direction: ParameterDirection.Output);
-        p.Add("o_password", dbType: DbType.String, size: 255, direction: ParameterDirection.Output);
-        p.Add("o_name", dbType: DbType.String, size: 255, direction: ParameterDirection.Output);
-        p.Add("o_surname", dbType: DbType.String, size: 255, direction: ParameterDirection.Output);
-        p.Add("o_age", dbType: DbType.Int32, direction: ParameterDirection.Output);
-
-        await connection.ExecuteAsync(new CommandDefinition(
+        var entity = await connection.QuerySingleOrDefaultAsync<UserEntity>(
             UserQueries.Update,
-            p,
-            cancellationToken: cancellationToken));
+            parameters);
 
-        if (p.Get<int?>("o_id") is null)
-        {
-            return null;
-        }
-
-        var entity = new UserEntity
-        {
-            Id = p.Get<int>("o_id"),
-            Login = p.Get<string>("o_login"),
-            Password = p.Get<string>("o_password"),
-            Name = p.Get<string>("o_name"),
-            Surname = p.Get<string>("o_surname"),
-            Age = p.Get<int>("o_age")
-        };
-
-        return _mapper.ToModel(entity);
+        return entity == null ? null : _mapper.ToModel(entity);
     }
 
     public async Task<int?> DeleteAsync(int userId, CancellationToken cancellationToken)
     {
         await using var connection = new NpgsqlConnection(_connectionString);
 
-        var p = new DynamicParameters();
-        p.Add("p_id", userId);
-        p.Add("o_id", dbType: DbType.Int32, direction: ParameterDirection.Output);
+        var parameters = new DynamicParameters();
+        parameters.Add("p_id", userId, DbType.Int32);
 
-        await connection.ExecuteAsync(new CommandDefinition(
+        var deletedId = await connection.QueryFirstOrDefaultAsync<int>(
             UserQueries.DeleteById,
-            p,
-            cancellationToken: cancellationToken));
+            parameters);
 
-        return p.Get<int?>("o_id");
+        return deletedId;
     }
 }
