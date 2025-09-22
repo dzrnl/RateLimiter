@@ -38,9 +38,10 @@ public class UserRepository : IUserRepository
         p.Add("o_surname", dbType: DbType.String, size: 255, direction: ParameterDirection.Output);
         p.Add("o_age", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
-        await connection.ExecuteAsync(
-            new CommandDefinition(UserQueries.Insert, 
-            p, cancellationToken: cancellationToken));
+        await connection.ExecuteAsync(new CommandDefinition(
+            UserQueries.Insert,
+            p,
+            cancellationToken: cancellationToken));
 
         var entity = new UserEntity
         {
@@ -68,12 +69,15 @@ public class UserRepository : IUserRepository
         p.Add("o_surname", dbType: DbType.String, size: 255, direction: ParameterDirection.Output);
         p.Add("o_age", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
-        await connection.ExecuteAsync(
-            new CommandDefinition(UserQueries.SelectById, 
-            p, cancellationToken: cancellationToken));
+        await connection.ExecuteAsync(new CommandDefinition(
+            UserQueries.SelectById,
+            p,
+            cancellationToken: cancellationToken));
 
         if (p.Get<int?>("o_id") is null)
+        {
             return null;
+        }
 
         var entity = new UserEntity
         {
@@ -101,12 +105,15 @@ public class UserRepository : IUserRepository
         p.Add("o_surname", dbType: DbType.String, size: 255, direction: ParameterDirection.Output);
         p.Add("o_age", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
-        await connection.ExecuteAsync(
-            new CommandDefinition(UserQueries.SelectByLogin, 
-            p, cancellationToken: cancellationToken));
+        await connection.ExecuteAsync(new CommandDefinition(
+            UserQueries.SelectByLogin,
+            p,
+            cancellationToken: cancellationToken));
 
         if (p.Get<int?>("o_id") is null)
+        {
             return null;
+        }
 
         var entity = new UserEntity
         {
@@ -129,7 +136,7 @@ public class UserRepository : IUserRepository
             UserQueries.SelectAllByName,
             parameters: new { Name = name, Surname = surname },
             cancellationToken: cancellationToken);
-        
+
         var userEntities = await connection.QueryAsync<UserEntity>(command);
 
         return _mapper.ToModels(userEntities).ToArray();
@@ -153,12 +160,15 @@ public class UserRepository : IUserRepository
         p.Add("o_surname", dbType: DbType.String, size: 255, direction: ParameterDirection.Output);
         p.Add("o_age", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
-        await connection.ExecuteAsync(
-            new CommandDefinition(UserQueries.Update, 
-            p, cancellationToken: cancellationToken));
+        await connection.ExecuteAsync(new CommandDefinition(
+            UserQueries.Update,
+            p,
+            cancellationToken: cancellationToken));
 
         if (p.Get<int?>("o_id") is null)
+        {
             return null;
+        }
 
         var entity = new UserEntity
         {
@@ -181,9 +191,10 @@ public class UserRepository : IUserRepository
         p.Add("p_id", userId);
         p.Add("o_id", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
-        await connection.ExecuteAsync(
-            new CommandDefinition(UserQueries.DeleteById, 
-            p, cancellationToken: cancellationToken));
+        await connection.ExecuteAsync(new CommandDefinition(
+            UserQueries.DeleteById,
+            p,
+            cancellationToken: cancellationToken));
 
         return p.Get<int?>("o_id");
     }
