@@ -132,9 +132,13 @@ public class UserRepository : IUserRepository
     {
         await using var connection = new NpgsqlConnection(_connectionString);
 
+        var p = new DynamicParameters();
+        p.Add("Name", name);
+        p.Add("Surname", surname);
+
         var command = new CommandDefinition(
             UserQueries.SelectAllByName,
-            parameters: new { Name = name, Surname = surname },
+            p,
             cancellationToken: cancellationToken);
 
         var userEntities = await connection.QueryAsync<UserEntity>(command);
