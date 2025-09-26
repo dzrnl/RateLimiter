@@ -1,6 +1,6 @@
 namespace UserService.Services.Dtos;
 
-public record UpdateUserDto(
+public sealed record UpdateUserDto(
     int Id,
     string? Password,
     string? Name,

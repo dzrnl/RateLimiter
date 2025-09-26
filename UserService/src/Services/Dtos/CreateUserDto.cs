@@ -1,6 +1,6 @@
 namespace UserService.Services.Dtos;
 
-public record CreateUserDto(
+public sealed record CreateUserDto(
     string Login,
     string Password,
     string Name,
