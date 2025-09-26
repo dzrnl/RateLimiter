@@ -8,7 +8,7 @@ public static class ServiceCollectionExtensions
     {
         collection.Configure<DatabaseSettings>(configuration.GetSection(nameof(DatabaseSettings)));
 
-        collection.AddScoped<IUserRepository, UserRepository>();
+        collection.AddSingleton<IUserRepository, UserRepository>();
         collection.AddSingleton<UserMapper>();
 
         return collection;

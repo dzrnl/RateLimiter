@@ -9,8 +9,8 @@ public static class ServiceCollectionExtensions
     {
         collection.AddSingleton<UserMapper>();
 
-        collection.AddScoped<IValidator<CreateUserRequest>, CreateUserRequestValidator>();
-        collection.AddScoped<IValidator<UpdateUserRequest>, UpdateUserRequestValidator>();
+        collection.AddSingleton<IValidator<CreateUserRequest>, CreateUserRequestValidator>();
+        collection.AddSingleton<IValidator<UpdateUserRequest>, UpdateUserRequestValidator>();
 
         return collection;
     }
