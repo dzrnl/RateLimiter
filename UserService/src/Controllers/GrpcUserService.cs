@@ -26,7 +26,7 @@ public class GrpcUserService : UserServiceBase
 
     public override async Task<UserId> CreateUser(CreateUserRequest request, ServerCallContext context)
     {
-        await _createValidator.ValidateAndThrowAsync(request, context.CancellationToken);
+        _createValidator.ValidateAndThrow(request);
 
         var createModel = _mapper.ToCreateModel(request);
         var user = await _userService.CreateUserAsync(createModel, context.CancellationToken);
@@ -55,7 +55,7 @@ public class GrpcUserService : UserServiceBase
 
     public override async Task<UserId> UpdateUser(UpdateUserRequest request, ServerCallContext context)
     {
-        await _updateValidator.ValidateAndThrowAsync(request, context.CancellationToken);
+        _updateValidator.ValidateAndThrow(request);
 
         var updateModel = _mapper.ToUpdateModel(request);
         var user = await _userService.UpdateUserAsync(updateModel, context.CancellationToken);
