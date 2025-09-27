@@ -7,7 +7,7 @@ package userService;
 service UserService {
   rpc CreateUser (CreateUserRequest) returns (UserId);
   rpc GetUserById (UserId) returns (UserResponse);
-  rpc GetUsersByName (UserFullName) returns (stream UserResponse);
+  rpc GetUsersByName (UserFullName) returns (UserListResponse);
   rpc UpdateUser (UpdateUserRequest) returns (UserId);
   rpc DeleteUser (UserId) returns (UserId);
 }
@@ -18,6 +18,10 @@ message UserResponse {
   string name = 3;
   string surname = 4;
   int32 age = 5;
+}
+
+message UserListResponse {
+  repeated UserResponse users = 1;
 }
 
 message CreateUserRequest {

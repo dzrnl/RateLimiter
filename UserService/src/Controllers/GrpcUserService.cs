@@ -40,17 +40,14 @@ public class GrpcUserService : UserServiceBase
         return _mapper.FromModel(user);
     }
 
-    public override async Task GetUsersByName(
-        UserFullName request,
-        IServerStreamWriter<UserResponse> responseStream,
-        ServerCallContext context)
+    public override async Task<UserListResponse> GetUsersByName(UserFullName request, ServerCallContext context)
     {
         var users = await _userService.FindUsersByNameAsync(request.Name, request.Surname, context.CancellationToken);
 
-        foreach (var user in users)
+        return new UserListResponse
         {
-            await responseStream.WriteAsync(_mapper.FromModel(user), context.CancellationToken);
-        }
+            Users = { users.Select(_mapper.FromModel) }
+        };
     }
 
     public override async Task<UserId> UpdateUser(UpdateUserRequest request, ServerCallContext context)
