@@ -1,5 +1,5 @@
 using MongoDB.Driver;
-using RateLimiter.Writer.Repositories.DbModels;
+using RateLimiter.Writer.Repositories.Entities;
 using RateLimiter.Writer.Services.Entities;
 
 namespace RateLimiter.Writer.Repositories;

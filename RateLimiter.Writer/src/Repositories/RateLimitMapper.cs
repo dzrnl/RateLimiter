@@ -1,4 +1,4 @@
-using RateLimiter.Writer.Repositories.DbModels;
+using RateLimiter.Writer.Repositories.Entities;
 using RateLimiter.Writer.Services.Entities;
 using Riok.Mapperly.Abstractions;
 

@@ -17,14 +17,14 @@ public static class ServiceCollectionExtensions
         collection.AddSingleton<IMongoClient>(sp =>
         {
             var settings = sp.GetRequiredService<IOptions<MongoSettings>>().Value;
-            return new MongoClient(settings.MongoUri);
+            return new MongoClient(settings.Uri);
         });
 
         // Mongo database
         collection.AddSingleton<IMongoDatabase>(sp =>
         {
             var settings = sp.GetRequiredService<IOptions<MongoSettings>>().Value;
-            return sp.GetRequiredService<IMongoClient>().GetDatabase(settings.MongoDatabase);
+            return sp.GetRequiredService<IMongoClient>().GetDatabase(settings.Database);
         });
 
         collection.AddSingleton<RateLimitMapper>();
