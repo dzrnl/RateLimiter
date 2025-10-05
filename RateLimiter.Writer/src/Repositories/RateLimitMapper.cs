@@ -7,11 +7,11 @@ namespace RateLimiter.Writer.Repositories;
 [Mapper]
 public partial class RateLimitMapper
 {
-    public partial RateLimitModel ToDbModel(RateLimitEntity model);
+    public partial RateLimitModel ToModel(RateLimitEntity entity);
     
     public partial RateLimitEntity ToEntity(RateLimitModel model);
     
-    public partial IEnumerable<RateLimitModel> ToDbModels(IEnumerable<RateLimitEntity> entities);
+    public partial IEnumerable<RateLimitModel> ToModels(IEnumerable<RateLimitEntity> entities);
     
-    public partial IEnumerable<RateLimitEntity> ToEntities(IEnumerable<RateLimitModel> entities);
+    public partial IEnumerable<RateLimitEntity> ToEntities(IEnumerable<RateLimitModel> models);
 }
