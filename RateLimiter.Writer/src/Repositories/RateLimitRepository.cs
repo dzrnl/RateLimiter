@@ -4,7 +4,7 @@ using RateLimiter.Writer.Services.Models;
 
 namespace RateLimiter.Writer.Repositories;
 
-public class RateLimitRepository(IMongoDatabase database, RateLimitMapper mapper) : IRateLimiterRepository
+public class RateLimitRepository(IMongoDatabase database, RateLimitMapper mapper) : IRateLimitRepository
 {
     public async Task<RateLimit?> GetAsync(string route, CancellationToken cancellationToken)
     {

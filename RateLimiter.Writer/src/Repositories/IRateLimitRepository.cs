@@ -2,7 +2,7 @@ using RateLimiter.Writer.Services.Models;
 
 namespace RateLimiter.Writer.Repositories;
 
-public interface IRateLimiterRepository
+public interface IRateLimitRepository
 {
     public Task<RateLimit?> GetAsync(string route, CancellationToken cancellationToken = default);
 
