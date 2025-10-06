@@ -10,26 +10,24 @@ public static class ServiceCollectionExtensions
         IConfiguration configuration)
     {
         // Settings for MongoDB connection
-        collection.AddOptions<MongoSettings>()
-            .Bind(configuration.GetSection("MongoSettings"));
-        
+        collection.AddOptions<DatabaseSettings>()
+            .Bind(configuration.GetSection(nameof(DatabaseSettings)));
+
         // Mongo client
-        collection.AddSingleton<IMongoClient>(sp =>
-        {
-            var settings = sp.GetRequiredService<IOptions<MongoSettings>>().Value;
+        collection.AddSingleton<IMongoClient>(sp => {
+            var settings = sp.GetRequiredService<IOptions<DatabaseSettings>>().Value;
             return new MongoClient(settings.Uri);
         });
 
         // Mongo database
-        collection.AddSingleton<IMongoDatabase>(sp =>
-        {
-            var settings = sp.GetRequiredService<IOptions<MongoSettings>>().Value;
+        collection.AddSingleton<IMongoDatabase>(sp => {
+            var settings = sp.GetRequiredService<IOptions<DatabaseSettings>>().Value;
             return sp.GetRequiredService<IMongoClient>().GetDatabase(settings.Database);
         });
 
         collection.AddSingleton<RateLimitMapper>();
         collection.AddSingleton<IRateLimiterRepository, RateLimitRepository>();
-        
+
         return collection;
     }
 }
