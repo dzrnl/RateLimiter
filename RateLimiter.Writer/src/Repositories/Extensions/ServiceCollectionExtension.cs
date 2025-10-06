@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Options;
+using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver;
 
 namespace RateLimiter.Writer.Repositories.Extensions;
@@ -20,6 +21,9 @@ public static class ServiceCollectionExtensions
             var settings = sp.GetRequiredService<IOptions<DatabaseSettings>>().Value;
             return sp.GetRequiredService<IMongoClient>().GetDatabase(settings.Database);
         });
+
+        var conventionPack = new ConventionPack { new CamelCaseElementNameConvention() };
+        ConventionRegistry.Register("camelCase", conventionPack, _ => true);
 
         collection.AddSingleton<RateLimitMapper>();
         collection.AddSingleton<IRateLimitRepository, RateLimitRepository>();
