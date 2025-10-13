@@ -1,3 +1,4 @@
+using RateLimiter.Writer.Controllers;
 using RateLimiter.Writer.Repositories.Extensions;
 using RateLimiter.Writer.Services.Extensions;
 
@@ -9,5 +10,7 @@ builder.Services.AddApplication();
 builder.Services.AddInfrastructureDataAccess(builder.Configuration);
 
 var app = builder.Build();
+
+app.MapGrpcService<GrpcWriterService>();
 
 await app.RunAsync("http://*:5001");
