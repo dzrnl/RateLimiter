@@ -5,7 +5,7 @@ namespace UserService.Controllers.Extensions;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddValidators(this IServiceCollection collection)
+    public static IServiceCollection AddGrpcServices(this IServiceCollection collection)
     {
         collection.AddSingleton<UserMapper>();
 

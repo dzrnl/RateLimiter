@@ -12,7 +12,7 @@ builder.Services.AddGrpc(options =>
 
 builder.Services.AddApplication();
 builder.Services.AddInfrastructureDataAccess(builder.Configuration);
-builder.Services.AddValidators();
+builder.Services.AddGrpcServices();
 
 var app = builder.Build();
 
