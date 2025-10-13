@@ -1,4 +1,5 @@
 using RateLimiter.Writer.Repositories.Entities;
+using RateLimiter.Writer.Services.Dtos;
 using RateLimiter.Writer.Services.Models;
 using Riok.Mapperly.Abstractions;
 
@@ -9,7 +10,9 @@ public partial class RateLimitMapper
 {
     public partial RateLimit ToModel(RateLimitEntity entity);
 
-    public partial RateLimitEntity ToEntity(RateLimit model);
+    public partial RateLimitEntity ToEntity(CreateRateLimitDto dto);
+    
+    public partial RateLimitEntity ToEntity(UpdateRateLimitDto dto);
 
     public partial IEnumerable<RateLimit> ToModels(IEnumerable<RateLimitEntity> entities);
 

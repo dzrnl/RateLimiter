@@ -17,23 +17,29 @@ public class GrpcWriterService : Writer.WriterBase
         _mapper = mapper;
     }
 
-    public override Task<Empty> CreateLimit(CreateRateLimitRequest request, ServerCallContext context)
+    public override async Task<Empty> CreateLimit(CreateRateLimitRequest request, ServerCallContext context)
     {
-        throw new NotImplementedException();
+        var createModel = _mapper.ToCreateModel(request);
+        await _rateLimitService.CreateRateLimitAsync(createModel, context.CancellationToken);
+        return new Empty();
     }
 
-    public override Task<RateLimitResponse> GetLimitByRoute(RouteRequest request, ServerCallContext context)
+    public override async Task<RateLimitResponse> GetLimitByRoute(RouteRequest request, ServerCallContext context)
     {
-        throw new NotImplementedException();
+        var rateLimit = await _rateLimitService.GetRateLimitByRouteAsync(request.Route, context.CancellationToken);
+        return _mapper.ToResponse(rateLimit);
     }
 
-    public override Task<RateLimitResponse> UpdateLimit(UpdateRateLimitRequest request, ServerCallContext context)
+    public override async Task<RateLimitResponse> UpdateLimit(UpdateRateLimitRequest request, ServerCallContext context)
     {
-        throw new NotImplementedException();
+        var updateModel = _mapper.ToUpdateModel(request);
+        var rateLimit = await _rateLimitService.UpdateRateLimitAsync(updateModel, context.CancellationToken);
+        return _mapper.ToResponse(rateLimit);
     }
 
-    public override Task<Empty> DeleteLimit(RouteRequest request, ServerCallContext context)
+    public override async Task<Empty> DeleteLimit(RouteRequest request, ServerCallContext context)
     {
-        throw new NotImplementedException();
+        await _rateLimitService.DeleteRateLimitAsync(request.Route, context.CancellationToken);
+        return new Empty();
     }
 }

@@ -1,12 +1,24 @@
 using MongoDB.Driver;
 using RateLimiter.Writer.Repositories.Entities;
+using RateLimiter.Writer.Services.Dtos;
 using RateLimiter.Writer.Services.Models;
 
 namespace RateLimiter.Writer.Repositories;
 
 public class RateLimitRepository(IMongoDatabase database, RateLimitMapper mapper) : IRateLimitRepository
 {
-    public async Task<RateLimit?> GetAsync(string route, CancellationToken cancellationToken)
+    public async Task<RateLimit> AddAsync(CreateRateLimitDto dto, CancellationToken cancellationToken)
+    {
+        var entity = mapper.ToEntity(dto);
+        var collection = GetRateLimitsCollection();
+        await collection.InsertOneAsync(
+            entity,
+            options: null,
+            cancellationToken);
+        return mapper.ToModel(entity);
+    }
+
+    public async Task<RateLimit?> FindByRouteAsync(string route, CancellationToken cancellationToken)
     {
         var collection = GetRateLimitsCollection();
         var entity = await collection
@@ -16,17 +28,7 @@ public class RateLimitRepository(IMongoDatabase database, RateLimitMapper mapper
         return entity is null ? null : mapper.ToModel(entity);
     }
 
-    public async Task AddAsync(RateLimit model, CancellationToken cancellationToken)
-    {
-        var entity = mapper.ToEntity(model);
-        var collection = GetRateLimitsCollection();
-        await collection.InsertOneAsync(
-            entity,
-            options: null,
-            cancellationToken);
-    }
-
-    public async Task<bool> UpdateAsync(RateLimit model, CancellationToken cancellationToken)
+    public async Task<RateLimit> UpdateAsync(UpdateRateLimitDto model, CancellationToken cancellationToken)
     {
         var entity = mapper.ToEntity(model);
         var collection = GetRateLimitsCollection();
@@ -40,7 +42,7 @@ public class RateLimitRepository(IMongoDatabase database, RateLimitMapper mapper
             new UpdateOptions { IsUpsert = false },
             cancellationToken);
 
-        return result.MatchedCount == 1 && result.ModifiedCount > 0;
+        return mapper.ToModel(entity);
     }
 
     public async Task<bool> DeleteAsync(string route, CancellationToken cancellationToken)
