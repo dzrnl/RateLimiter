@@ -19,7 +19,7 @@ public class RateLimitService : IRateLimitService
         return _rateLimitRepository.AddAsync(dto, cancellationToken);
     }
 
-    public async Task<RateLimit> GetRateLimitByRouteAsync(string route, CancellationToken cancellationToken = default)
+    public async Task<RateLimit> GetRateLimitByRouteAsync(string route, CancellationToken cancellationToken)
     {
         var rateLimit = await _rateLimitRepository.FindByRouteAsync(route, cancellationToken);
 
@@ -31,12 +31,12 @@ public class RateLimitService : IRateLimitService
         return rateLimit;
     }
 
-    public Task<RateLimit> UpdateRateLimitAsync(UpdateRateLimitDto dto, CancellationToken cancellationToken = default)
+    public Task<RateLimit> UpdateRateLimitAsync(UpdateRateLimitDto dto, CancellationToken cancellationToken)
     {
         return _rateLimitRepository.UpdateAsync(dto, cancellationToken);
     }
 
-    public async Task DeleteRateLimitAsync(string route, CancellationToken cancellationToken = default)
+    public async Task DeleteRateLimitAsync(string route, CancellationToken cancellationToken)
     {
         var deleted = await _rateLimitRepository.DeleteAsync(route, cancellationToken);
 
