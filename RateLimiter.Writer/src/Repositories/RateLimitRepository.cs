@@ -8,7 +8,7 @@ namespace RateLimiter.Writer.Repositories;
 public class RateLimitRepository(IMongoDatabase database, RateLimitMapper mapper) : IRateLimitRepository
 {
     private const string CollectionName = "rateLimits";
-    
+
     public async Task<RateLimit> AddAsync(CreateRateLimitDto dto, CancellationToken cancellationToken)
     {
         var entity = mapper.ToEntity(dto);
@@ -62,11 +62,5 @@ public class RateLimitRepository(IMongoDatabase database, RateLimitMapper mapper
     }
 
     private IMongoCollection<RateLimitEntity> GetRateLimitsCollection()
-    {
-        var collection = database.GetCollection<RateLimitEntity>(CollectionName);
-        var indexKeys = Builders<RateLimitEntity>.IndexKeys.Ascending(x => x.Route);
-        var indexModel = new CreateIndexModel<RateLimitEntity>(indexKeys, new CreateIndexOptions { Unique = true });
-        collection.Indexes.CreateOne(indexModel);
-        return collection;
-    }
+        => database.GetCollection<RateLimitEntity>(CollectionName);
 }

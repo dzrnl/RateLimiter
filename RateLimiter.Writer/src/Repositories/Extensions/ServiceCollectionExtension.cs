@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Options;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver;
+using RateLimiter.Writer.Repositories.Entities;
 
 namespace RateLimiter.Writer.Repositories.Extensions;
 
@@ -19,6 +20,13 @@ public static class ServiceCollectionExtensions
 
         collection.AddSingleton<IMongoDatabase>(sp => {
             var settings = sp.GetRequiredService<IOptions<DatabaseSettings>>().Value;
+            var db = sp.GetRequiredService<IMongoClient>().GetDatabase(settings.Database);
+
+            var rateLimits = db.GetCollection<RateLimitEntity>("rateLimits");
+            var indexKeys = Builders<RateLimitEntity>.IndexKeys.Ascending(x => x.Route);
+            var indexModel = new CreateIndexModel<RateLimitEntity>(indexKeys, new CreateIndexOptions { Unique = true });
+            rateLimits.Indexes.CreateOne(indexModel);
+
             return sp.GetRequiredService<IMongoClient>().GetDatabase(settings.Database);
         });
 
