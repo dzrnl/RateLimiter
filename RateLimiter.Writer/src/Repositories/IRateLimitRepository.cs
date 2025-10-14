@@ -9,7 +9,7 @@ public interface IRateLimitRepository
 
     public Task<RateLimit?> FindByRouteAsync(string route, CancellationToken cancellationToken);
 
-    public Task<RateLimit> UpdateAsync(UpdateRateLimitDto model, CancellationToken cancellationToken);
+    public Task<RateLimit?> UpdateAsync(UpdateRateLimitDto model, CancellationToken cancellationToken);
 
     public Task<bool> DeleteAsync(string route, CancellationToken cancellationToken);
 }

@@ -25,15 +25,22 @@ public class RateLimitService : IRateLimitService
 
         if (rateLimit is null)
         {
-            throw new KeyNotFoundException(); // TODO: Exceptions
+            throw new RateLimitNotFoundException(route);
         }
 
         return rateLimit;
     }
 
-    public Task<RateLimit> UpdateRateLimitAsync(UpdateRateLimitDto dto, CancellationToken cancellationToken)
+    public async Task<RateLimit> UpdateRateLimitAsync(UpdateRateLimitDto dto, CancellationToken cancellationToken)
     {
-        return _rateLimitRepository.UpdateAsync(dto, cancellationToken);
+        var updatedLimit = await _rateLimitRepository.UpdateAsync(dto, cancellationToken);
+        
+        if (updatedLimit is null)
+        {
+            throw new RateLimitNotFoundException(dto.Route);
+        }
+
+        return updatedLimit;
     }
 
     public async Task DeleteRateLimitAsync(string route, CancellationToken cancellationToken)
@@ -42,7 +49,7 @@ public class RateLimitService : IRateLimitService
 
         if (!deleted)
         {
-            throw new KeyNotFoundException(); // TODO: Exceptions
+            throw new RateLimitNotFoundException(route);
         }
     }
 }

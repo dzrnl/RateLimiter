@@ -33,7 +33,7 @@ public class RateLimitRepository(IMongoDatabase database, RateLimitMapper mapper
         return entity is null ? null : mapper.ToModel(entity);
     }
 
-    public async Task<RateLimit> UpdateAsync(UpdateRateLimitDto model, CancellationToken cancellationToken)
+    public async Task<RateLimit?> UpdateAsync(UpdateRateLimitDto model, CancellationToken cancellationToken)
     {
         var entity = mapper.ToEntity(model);
 
@@ -50,9 +50,7 @@ public class RateLimitRepository(IMongoDatabase database, RateLimitMapper mapper
             new FindOneAndUpdateOptions<RateLimitEntity> { ReturnDocument = ReturnDocument.After },
             cancellationToken);
 
-        return updated is null
-            ? throw new KeyNotFoundException($"Rate limit for route '{model.Route}' not found.")
-            : mapper.ToModel(updated);
+        return updated is null ? null : mapper.ToModel(updated);
     }
 
     public async Task<bool> DeleteAsync(string route, CancellationToken cancellationToken)
