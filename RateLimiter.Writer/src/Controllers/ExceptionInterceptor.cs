@@ -1,5 +1,6 @@
 using Grpc.Core;
 using Grpc.Core.Interceptors;
+using RateLimiter.Writer.Services;
 
 namespace RateLimiter.Writer.Controllers;
 
@@ -31,6 +32,14 @@ public class ExceptionInterceptor : Interceptor
     {
         switch (ex)
         {
+            case RateLimitAlreadyExistsException ae:
+                _logger.LogWarning("Rate limit already exists: {@Request}. Message: {Message}", request, ae.Message);
+                return new RpcException(new Status(StatusCode.AlreadyExists, ae.Message));
+
+            case RateLimitNotFoundException nf:
+                _logger.LogWarning("RateLimit not found for request: {@Request}. Message: {Message}", request, nf.Message);
+                return new RpcException(new Status(StatusCode.NotFound, nf.Message));
+            
             case FluentValidation.ValidationException ve:
                 _logger.LogWarning("Validation failed for request: {@Request}. Message: {Message}", request, ve.Message);
                 return new RpcException(new Status(StatusCode.InvalidArgument, ve.Message));
