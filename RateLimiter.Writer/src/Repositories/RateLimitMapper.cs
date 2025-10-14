@@ -13,8 +13,4 @@ public partial class RateLimitMapper
     public partial RateLimitEntity ToEntity(CreateRateLimitDto dto);
     
     public partial RateLimitEntity ToEntity(UpdateRateLimitDto dto);
-
-    public partial IEnumerable<RateLimit> ToModels(IEnumerable<RateLimitEntity> entities);
-
-    public partial IEnumerable<RateLimitEntity> ToEntities(IEnumerable<RateLimit> models);
 }
