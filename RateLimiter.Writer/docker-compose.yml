@@ -15,10 +15,10 @@ services:
       context: .
     platform: linux/amd64
     environment:
-      MongoSettings__Uri: "mongodb://${MONGO_USER}:${MONGO_PASSWORD}@rate-limits-db-service:27017"
-      MongoSettings__Database: "rateLimiterDB"
+      DatabaseSettings__Uri: "mongodb://${MONGO_USER}:${MONGO_PASSWORD}@rate-limits-db-service:27017"
+      DatabaseSettings__Database: "rateLimiterDB"
     ports:
-      - "5003:5002"
+      - "5001:5001"
       
 volumes:
   rate-limits-db-data:

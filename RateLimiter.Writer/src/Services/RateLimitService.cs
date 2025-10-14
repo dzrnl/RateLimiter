@@ -15,6 +15,7 @@ public class RateLimitService : IRateLimitService
 
     public Task<RateLimit> CreateRateLimitAsync(CreateRateLimitDto dto, CancellationToken cancellationToken)
     {
+        // TODO: add check
         return _rateLimitRepository.AddAsync(dto, cancellationToken);
     }
 
@@ -24,7 +25,7 @@ public class RateLimitService : IRateLimitService
 
         if (rateLimit is null)
         {
-            throw new KeyNotFoundException();
+            throw new KeyNotFoundException(); // TODO: Exceptions
         }
 
         return rateLimit;
@@ -41,7 +42,7 @@ public class RateLimitService : IRateLimitService
 
         if (!deleted)
         {
-            throw new KeyNotFoundException();
+            throw new KeyNotFoundException(); // TODO: Exceptions
         }
     }
 }
