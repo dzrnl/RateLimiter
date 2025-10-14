@@ -13,10 +13,16 @@ public class RateLimitService : IRateLimitService
         _rateLimitRepository = rateLimitRepository;
     }
 
-    public Task<RateLimit> CreateRateLimitAsync(CreateRateLimitDto dto, CancellationToken cancellationToken)
+    public async Task<RateLimit> CreateRateLimitAsync(CreateRateLimitDto dto, CancellationToken cancellationToken)
     {
-        // TODO: add check
-        return _rateLimitRepository.AddAsync(dto, cancellationToken);
+        var rateLimit = await _rateLimitRepository.FindByRouteAsync(dto.Route, cancellationToken);
+
+        if (rateLimit != null)
+        {
+            throw new RateLimitAlreadyExistsException(dto.Route);
+        }
+
+        return await _rateLimitRepository.AddAsync(dto, cancellationToken);
     }
 
     public async Task<RateLimit> GetRateLimitByRouteAsync(string route, CancellationToken cancellationToken)
@@ -34,7 +40,7 @@ public class RateLimitService : IRateLimitService
     public async Task<RateLimit> UpdateRateLimitAsync(UpdateRateLimitDto dto, CancellationToken cancellationToken)
     {
         var updatedLimit = await _rateLimitRepository.UpdateAsync(dto, cancellationToken);
-        
+
         if (updatedLimit is null)
         {
             throw new RateLimitNotFoundException(dto.Route);
