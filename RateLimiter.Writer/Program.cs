@@ -5,7 +5,10 @@ using RateLimiter.Writer.Services.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddGrpc();
+builder.Services.AddGrpc(options =>
+{
+    options.Interceptors.Add<ExceptionInterceptor>();
+});
 
 builder.Services.AddApplication();
 builder.Services.AddInfrastructureDataAccess(builder.Configuration);
