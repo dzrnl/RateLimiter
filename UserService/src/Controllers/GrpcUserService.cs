@@ -37,7 +37,7 @@ public class GrpcUserService : UserServiceBase
     public override async Task<UserResponse> GetUserById(UserId request, ServerCallContext context)
     {
         var user = await _userService.GetUserByIdAsync(request.Id, context.CancellationToken);
-        return _mapper.FromModel(user);
+        return _mapper.ToResponse(user);
     }
 
     public override async Task<UserListResponse> GetUsersByName(UserFullName request, ServerCallContext context)
@@ -46,7 +46,7 @@ public class GrpcUserService : UserServiceBase
 
         return new UserListResponse
         {
-            Users = { users.Select(_mapper.FromModel) }
+            Users = { users.Select(_mapper.ToResponse) }
         };
     }
 

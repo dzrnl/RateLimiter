@@ -8,7 +8,7 @@ namespace UserService.Controllers;
 public partial class UserMapper
 {
     [MapperIgnoreSource(nameof(UserModel.Password))]
-    public partial UserResponse FromModel(UserModel model);
+    public partial UserResponse ToResponse(UserModel model);
 
     public partial CreateUserDto ToCreateModel(CreateUserRequest request);
 

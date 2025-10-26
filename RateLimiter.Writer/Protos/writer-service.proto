@@ -2,8 +2,32 @@ syntax = "proto3";
 
 option csharp_namespace = "RateLimiter.Writer";
 
+import "google/protobuf/empty.proto";
+
 package writer;
 
 service Writer {
-  
+  rpc CreateLimit (CreateRateLimitRequest) returns (google.protobuf.Empty);
+  rpc GetLimitByRoute (RouteRequest) returns (RateLimitResponse);
+  rpc UpdateLimit (UpdateRateLimitRequest) returns (RateLimitResponse);
+  rpc DeleteLimit (RouteRequest) returns (google.protobuf.Empty);
+}
+
+message RateLimitResponse {
+  string route = 1;
+  int32 requests_per_minute = 2;
+}
+
+message RouteRequest {
+  string route = 1;
+}
+
+message CreateRateLimitRequest {
+  string route = 1;
+  int32 requests_per_minute = 2;
+}
+
+message UpdateRateLimitRequest {
+  string route = 1;
+  int32 requests_per_minute = 2;
 }
