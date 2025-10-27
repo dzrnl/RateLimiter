@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using RateLimiter.Reader.Repositories.Entities;
 using RateLimiter.Reader.Services.Models;
@@ -6,14 +7,19 @@ namespace RateLimiter.Reader.Repositories;
 
 public class RateLimitRepository : IRateLimitRepository
 {
-    private const string CollectionName = "rateLimits";
+    private readonly int _batchSize;
 
     private readonly IMongoCollection<RateLimitEntity> _collection;
     private readonly RateLimitMapper _mapper;
 
-    public RateLimitRepository(IMongoDatabase database, RateLimitMapper mapper)
+    public RateLimitRepository(
+        IMongoDatabase database,
+        RateLimitMapper mapper,
+        IOptions<DatabaseSettings> options)
     {
-        _collection = database.GetCollection<RateLimitEntity>(CollectionName);
+        _batchSize = options.Value.BatchSize;
+
+        _collection = database.GetCollection<RateLimitEntity>(options.Value.CollectionName);
         _mapper = mapper;
     }
 
@@ -21,7 +27,7 @@ public class RateLimitRepository : IRateLimitRepository
     {
         var options = new FindOptions<RateLimitEntity>
         {
-            BatchSize = 1000
+            BatchSize = _batchSize
         };
 
         using var cursor = await _collection.FindAsync(
