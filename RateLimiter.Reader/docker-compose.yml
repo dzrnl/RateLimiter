@@ -1,10 +1,16 @@
 services:
-  rate-limits-reader-service:
+  limits-reader:
     build:
       context: .
+    container_name: highload_limits_reader
     platform: linux/amd64
     environment:
       DatabaseSettings__Uri: "mongodb://${MONGO_USER}:${MONGO_PASSWORD}@rate-limits-db-service:27017"
       DatabaseSettings__Database: "rateLimiterDB"
     ports:
       - "4999:5000"
+    networks: 
+      - highload
+    depends_on:
+      limits-db: 
+        condition: service_healthy

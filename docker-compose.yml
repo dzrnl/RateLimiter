@@ -1,0 +1,9 @@
+networks:
+  highload:
+    name: highload
+    driver: bridge
+
+include:
+  - UserService/docker-compose.yml
+  - RateLimiter.Reader/docker-compose.yml
+  - RateLimiter.Writer/docker-compose.yml
