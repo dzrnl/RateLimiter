@@ -1,13 +1,14 @@
 using RateLimiter.Reader.Controllers;
+using RateLimiter.Reader.Repositories.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddGrpc();
+
+builder.Services.AddInfrastructureDataAccess(builder.Configuration);
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-app.MapGrpcService<ExampleController>();
+app.MapGrpcService<GrpcReaderService>();
 
 await app.RunAsync("http://*:5000");
