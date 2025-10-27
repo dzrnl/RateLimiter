@@ -10,7 +10,7 @@ services:
       - rate-limits-db-data:/data/db
   
   
-  rate-limits-service:
+  rate-limits-writer-service:
     build:
       context: .
     platform: linux/amd64
