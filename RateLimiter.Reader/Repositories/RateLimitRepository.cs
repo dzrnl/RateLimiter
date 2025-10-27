@@ -36,4 +36,29 @@ public class RateLimitRepository : IRateLimitRepository
             }
         }
     }
+
+    public async IAsyncEnumerable<RateLimit> WatchChangesAsync()
+    {
+        var pipeline = new EmptyPipelineDefinition<ChangeStreamDocument<RateLimitEntity>>()
+            .Match(cs => cs.OperationType == ChangeStreamOperationType.Update ||
+                         cs.OperationType == ChangeStreamOperationType.Replace);
+
+        var options = new ChangeStreamOptions
+        {
+            FullDocument = ChangeStreamFullDocumentOption.UpdateLookup
+        };
+
+        using var cursor = await _collection.WatchAsync(pipeline, options);
+
+        while (await cursor.MoveNextAsync())
+        {
+            foreach (var change in cursor.Current)
+            {
+                if (change.FullDocument != null)
+                {
+                    yield return _mapper.ToModel(change.FullDocument);
+                }
+            }
+        }
+    }
 }

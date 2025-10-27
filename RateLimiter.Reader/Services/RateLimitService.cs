@@ -13,17 +13,22 @@ public class RateLimitService : IRateLimitService
     {
         _rateLimitRepository = repository;
     }
-    
+
     public async Task InitializeAsync()
     {
         await foreach (var limit in _rateLimitRepository.GetAllAsync())
         {
             _cache[limit.Route] = limit;
         }
+
+        _ = Task.Run(async () => {
+            await foreach (var updatedLimit in _rateLimitRepository.WatchChangesAsync())
+            {
+                _cache[updatedLimit.Route] = updatedLimit;
+            }
+        });
     }
-    
+
     public IReadOnlyCollection<RateLimit> GetAllLimits()
-    {
-        return _cache.Values.ToList().AsReadOnly();
-    }
+        => _cache.Values.ToList().AsReadOnly();
 }
