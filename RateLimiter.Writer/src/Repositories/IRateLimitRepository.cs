@@ -5,11 +5,11 @@ namespace RateLimiter.Writer.Repositories;
 
 public interface IRateLimitRepository
 {
-    public Task<RateLimit> AddAsync(CreateRateLimitDto dto, CancellationToken cancellationToken);
+    Task<RateLimit> AddAsync(CreateRateLimitDto dto, CancellationToken cancellationToken);
 
-    public Task<RateLimit?> FindByRouteAsync(string route, CancellationToken cancellationToken);
+    Task<RateLimit?> FindByRouteAsync(string route, CancellationToken cancellationToken);
 
-    public Task<RateLimit?> UpdateAsync(UpdateRateLimitDto model, CancellationToken cancellationToken);
+    Task<RateLimit?> UpdateAsync(UpdateRateLimitDto model, CancellationToken cancellationToken);
 
-    public Task<bool> DeleteAsync(string route, CancellationToken cancellationToken);
+    Task<bool> DeleteAsync(string route, CancellationToken cancellationToken);
 }
