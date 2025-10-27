@@ -1,4 +1,5 @@
 using RateLimiter.Reader.Controllers;
+using RateLimiter.Reader.Controllers.Extensions;
 using RateLimiter.Reader.Repositories.Extensions;
 using RateLimiter.Reader.Services.Extensions;
 
@@ -8,6 +9,7 @@ builder.Services.AddGrpc();
 
 builder.Services.AddApplication();
 builder.Services.AddInfrastructureDataAccess(builder.Configuration);
+builder.Services.AddGrpcServices();
 
 var app = builder.Build();
 
