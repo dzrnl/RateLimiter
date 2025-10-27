@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using RateLimiter.Writer.Repositories.Entities;
 using RateLimiter.Writer.Services.Dtos;
@@ -7,14 +8,15 @@ namespace RateLimiter.Writer.Repositories;
 
 public class RateLimitRepository : IRateLimitRepository
 {
-    private const string CollectionName = "rateLimits";
-
     private readonly IMongoCollection<RateLimitEntity> _collection;
     private readonly RateLimitMapper _mapper;
 
-    public RateLimitRepository(IMongoDatabase database, RateLimitMapper mapper)
+    public RateLimitRepository(
+        IMongoDatabase database,
+        RateLimitMapper mapper,
+        IOptions<DatabaseSettings> options)
     {
-        _collection = database.GetCollection<RateLimitEntity>(CollectionName);
+        _collection = database.GetCollection<RateLimitEntity>(options.Value.CollectionName);
         _mapper = mapper;
     }
 
