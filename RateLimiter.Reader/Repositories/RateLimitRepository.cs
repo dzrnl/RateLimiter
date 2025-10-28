@@ -46,8 +46,10 @@ public class RateLimitRepository : IRateLimitRepository
     public async IAsyncEnumerable<RateLimit> WatchChangesAsync()
     {
         var pipeline = new EmptyPipelineDefinition<ChangeStreamDocument<RateLimitEntity>>()
-            .Match(cs => cs.OperationType == ChangeStreamOperationType.Update ||
-                         cs.OperationType == ChangeStreamOperationType.Replace);
+            .Match(cs =>
+                cs.OperationType == ChangeStreamOperationType.Insert ||
+                cs.OperationType == ChangeStreamOperationType.Update ||
+                cs.OperationType == ChangeStreamOperationType.Replace);
 
         var options = new ChangeStreamOptions
         {
