@@ -24,7 +24,7 @@ services:
     container_name: highload_limits_writer
     platform: linux/amd64
     environment:
-      DatabaseSettings__Uri: "mongodb://${MONGO_USER}:${MONGO_PASSWORD}@rate-limits-db-service:27017"
+      DatabaseSettings__Uri: "mongodb://${MONGO_USER}:${MONGO_PASSWORD}@limits-db:27017"
       DatabaseSettings__Database: "rateLimiterDB"
     ports:
       - "5001:5001"
