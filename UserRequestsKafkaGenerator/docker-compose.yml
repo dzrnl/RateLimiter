@@ -30,8 +30,7 @@ services:
     platform: linux/amd64
     container_name: user-requests-kafka-generator
     depends_on:
-      highload_kafka:
-        condition: service_healthy
+      - highload_kafka
     restart: unless-stopped
 
 volumes:
