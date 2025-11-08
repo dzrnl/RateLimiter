@@ -33,4 +33,4 @@ app.MapPost("/remove-all", async (CancellationToken cancellationToken) =>
 
 app.MapGet("/list", () => manager.GetActiveSchedules());
 
-await app.RunAsync();
+await app.RunAsync("http://*:5000");

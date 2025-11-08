@@ -29,6 +29,8 @@ services:
       context: .
     platform: linux/amd64
     container_name: user-requests-kafka-generator
+    ports:
+      - "4998:5000"
     depends_on:
       - highload_kafka
     restart: unless-stopped
