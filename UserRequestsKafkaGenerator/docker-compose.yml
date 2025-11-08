@@ -24,5 +24,15 @@ services:
     depends_on:
       - highload_kafka
 
+  user-requests-kafka-generator:
+    build:
+      context: .
+    platform: linux/amd64
+    container_name: user-requests-kafka-generator
+    depends_on:
+      highload_kafka:
+        condition: service_healthy
+    restart: unless-stopped
+
 volumes:
   kafka_data:
