@@ -5,26 +5,27 @@ namespace UserRequestsKafkaGenerator;
 
 public class KafkaProducerService : IHostedService
 {
-    private readonly IKafkaProducer _kafkaProducer;
+    private readonly IRequestScheduleManager _scheduleManager;
     private readonly ILogger<KafkaProducerService> _logger;
 
-    public KafkaProducerService(IKafkaProducer kafkaProducer, ILogger<KafkaProducerService> logger)
+    public KafkaProducerService(IRequestScheduleManager scheduleManager, ILogger<KafkaProducerService> logger)
     {
-        _kafkaProducer = kafkaProducer;
+        _scheduleManager = scheduleManager;
         _logger = logger;
     }
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        var userRequest = new UserRequest(0, "Service started");
-        await _kafkaProducer.ProduceAsync(userRequest, cancellationToken);
+        await _scheduleManager.StartOrUpdateScheduleAsync(new RequestSchedule(123, "GetUserById", 10), cancellationToken);
+        await _scheduleManager.StartOrUpdateScheduleAsync(new RequestSchedule(321, "GetUserById", 5), cancellationToken);
+
         _logger.LogInformation("KafkaProducerService started");
     }
 
     public async Task StopAsync(CancellationToken cancellationToken)
     {
-        var userRequest = new UserRequest(0, "Service stopped");
-        await _kafkaProducer.ProduceAsync(userRequest, cancellationToken);
-        _kafkaProducer.Dispose();
+        await _scheduleManager.StopAllSchedulesAsync(cancellationToken);
+        
+        _logger.LogInformation("KafkaProducerService stopped");
     }
 }

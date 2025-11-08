@@ -7,6 +7,7 @@ var host = Host.CreateDefaultBuilder()
     {
         services.Configure<KafkaSettings>(context.Configuration.GetSection(nameof(KafkaSettings)));
         services.AddSingleton<IKafkaProducer, KafkaProducer>();
+        services.AddSingleton<IRequestScheduleManager, RequestScheduleManager>();
         services.AddHostedService<KafkaProducerService>();
     })
     .Build();
