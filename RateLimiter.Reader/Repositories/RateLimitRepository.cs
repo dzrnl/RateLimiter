@@ -48,6 +48,7 @@ public class RateLimitRepository : IRateLimitRepository
         var pipeline = new EmptyPipelineDefinition<ChangeStreamDocument<RateLimitEntity>>()
             .Match(cs =>
                 cs.OperationType == ChangeStreamOperationType.Insert ||
+                cs.OperationType == ChangeStreamOperationType.Create ||
                 cs.OperationType == ChangeStreamOperationType.Update ||
                 cs.OperationType == ChangeStreamOperationType.Replace);
 

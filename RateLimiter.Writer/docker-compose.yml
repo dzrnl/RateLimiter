@@ -1,9 +1,8 @@
 volumes:
   rate-limits-db-data:
-
 services:
   limits-db:
-    image: mongodb/mongodb-community-server:7.0.24-rc0-ubi8
+    image: mongo:8.0-noble
     container_name: highload_limits_db
     ports: 
       - "5433:27017"
@@ -12,10 +11,17 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: "${MONGO_PASSWORD}"
     volumes:
       - rate-limits-db-data:/data/db
+      - ./database/mongo-init.bash:/mongo-init.bash
     networks: 
       - highload
+    command:
+      ["bash", "/mongo-init.bash"]
     healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      test: ["CMD-SHELL", "mongosh --quiet --eval 'quit(rs.status().myState == 1 ? 0 : 1)'"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
   
   
   limits-writer:
