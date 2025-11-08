@@ -1,17 +1,36 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using UserRequestsKafkaGenerator;
+﻿using UserRequestsKafkaGenerator;
 
-var host = Host.CreateDefaultBuilder()
-    .ConfigureServices((context, services) =>
-    {
-        services.Configure<KafkaSettings>(context.Configuration.GetSection(nameof(KafkaSettings)));
-        services.Configure<UserScheduleOptions>(context.Configuration.GetSection(nameof(UserScheduleOptions)));
+var builder = WebApplication.CreateBuilder(args);
 
-        services.AddSingleton<IKafkaProducer, KafkaProducer>();
-        services.AddSingleton<IRequestScheduleManager, RequestScheduleManager>();
-        services.AddHostedService<KafkaProducerService>();
-    })
-    .Build();
+builder.Services.Configure<KafkaSettings>(builder.Configuration.GetSection(nameof(KafkaSettings)));
+builder.Services.Configure<UserScheduleOptions>(builder.Configuration.GetSection(nameof(UserScheduleOptions)));
 
-await host.RunAsync();
+builder.Services.AddSingleton<IKafkaProducer, KafkaProducer>();
+builder.Services.AddSingleton<IRequestScheduleManager, RequestScheduleManager>();
+builder.Services.AddHostedService<KafkaProducerService>();
+
+var app = builder.Build();
+
+var manager = app.Services.GetRequiredService<IRequestScheduleManager>();
+
+app.MapPost("/add", async (RequestSchedule schedule, CancellationToken cancellationToken) =>
+{
+    await manager.StartOrUpdateScheduleAsync(schedule, cancellationToken);
+    return Results.Ok();
+});
+
+app.MapPost("/remove", async (int userId, string endpoint, CancellationToken cancellationToken) =>
+{
+    await manager.StopScheduleAsync(userId, endpoint, cancellationToken);
+    return Results.Ok();
+});
+
+app.MapPost("/remove-all", async (CancellationToken cancellationToken) =>
+{
+    await manager.StopAllSchedulesAsync(cancellationToken);
+    return Results.Ok();
+});
+
+app.MapGet("/list", () => manager.GetActiveSchedules());
+
+await app.RunAsync();

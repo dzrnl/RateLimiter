@@ -1,5 +1,4 @@
 using System.Collections.Concurrent;
-using Microsoft.Extensions.Logging;
 
 // ReSharper disable PossiblyMistakenUseOfCancellationToken
 
@@ -10,6 +9,7 @@ public interface IRequestScheduleManager
     Task StartOrUpdateScheduleAsync(RequestSchedule schedule, CancellationToken cancellationToken);
     Task StopScheduleAsync(int userId, string endpoint, CancellationToken cancellationToken);
     Task StopAllSchedulesAsync(CancellationToken cancellationToken);
+    IReadOnlyCollection<RequestSchedule> GetActiveSchedules();
 }
 
 public record ScheduleKey(int UserId, string Endpoint);
@@ -77,6 +77,11 @@ public class RequestScheduleManager : IRequestScheduleManager
         _activeSchedules.Clear();
         _logger.LogInformation("Stopped all schedules");
     }
+
+    public IReadOnlyCollection<RequestSchedule> GetActiveSchedules()
+        => _activeSchedules
+            .Select(e => e.Value.Schedule)
+            .ToList();
 
     private (CancellationTokenSource, Task) CreateScheduleTask(
         RequestSchedule schedule,
