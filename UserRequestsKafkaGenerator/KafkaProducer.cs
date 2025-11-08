@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Confluent.Kafka;
 using Microsoft.Extensions.Options;
 
@@ -5,13 +6,18 @@ namespace UserRequestsKafkaGenerator;
 
 public interface IKafkaProducer : IDisposable
 {
-    Task ProduceAsync(string message, CancellationToken cancellationToken);
+    Task ProduceAsync(UserRequest userRequest, CancellationToken cancellationToken);
 }
 
 public sealed class KafkaProducer : IKafkaProducer
 {
     private readonly IProducer<Null, string> _producer;
     private readonly string _topic;
+    
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
+    };
 
     public KafkaProducer(IOptions<KafkaSettings> options)
     {
@@ -26,11 +32,12 @@ public sealed class KafkaProducer : IKafkaProducer
         _producer = new ProducerBuilder<Null, string>(config).Build();
     }
 
-    public Task ProduceAsync(string message, CancellationToken cancellationToken)
+    public Task ProduceAsync(UserRequest userRequest, CancellationToken cancellationToken)
     {
+        var json = JsonSerializer.Serialize(userRequest, JsonOptions);
         return _producer.ProduceAsync(
-            _topic, 
-            new Message<Null, string> { Value = message }, 
+            _topic,
+            new Message<Null, string> { Value = json },
             cancellationToken);
     }
 

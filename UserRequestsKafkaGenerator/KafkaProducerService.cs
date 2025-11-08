@@ -16,14 +16,15 @@ public class KafkaProducerService : IHostedService
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        await _kafkaProducer.ProduceAsync("Service started", cancellationToken);
+        var userRequest = new UserRequest(0, "Service started");
+        await _kafkaProducer.ProduceAsync(userRequest, cancellationToken);
         _logger.LogInformation("KafkaProducerService started");
     }
 
     public async Task StopAsync(CancellationToken cancellationToken)
     {
-        await _kafkaProducer.ProduceAsync("Service stopped", cancellationToken);
-        _logger.LogInformation("KafkaProducerService stopped");
+        var userRequest = new UserRequest(0, "Service stopped");
+        await _kafkaProducer.ProduceAsync(userRequest, cancellationToken);
         _kafkaProducer.Dispose();
     }
 }
