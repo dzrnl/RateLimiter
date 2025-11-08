@@ -45,7 +45,7 @@ public class RequestScheduleManager : IRequestScheduleManager
             Schedule: schedule
         );
 
-        var message = entry.Cts != null ? "Updated" : "Started";
+        var message = entry != null ? "Updated" : "Started";
         _logger.LogInformation("{Message} schedule for user {UserId}: {Rpm} RPM, endpoint: {Endpoint}",
             message, schedule.UserId, schedule.Rpm, schedule.Endpoint);
     }
