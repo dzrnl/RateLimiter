@@ -8,15 +8,19 @@ namespace UserRequestsKafkaGenerator;
 public interface IRequestScheduleManager
 {
     Task StartOrUpdateScheduleAsync(RequestSchedule schedule, CancellationToken cancellationToken);
-    Task StopScheduleAsync(int userId, CancellationToken cancellationToken);
+    Task StopScheduleAsync(int userId, string endpoint, CancellationToken cancellationToken);
     Task StopAllSchedulesAsync(CancellationToken cancellationToken);
 }
+
+public record ScheduleKey(int UserId, string Endpoint);
+
+public record ScheduleEntry(CancellationTokenSource Cts, Task Task, RequestSchedule Schedule);
 
 public class RequestScheduleManager : IRequestScheduleManager
 {
     private readonly IKafkaProducer _kafkaProducer;
     private readonly ILogger<RequestScheduleManager> _logger;
-    private readonly ConcurrentDictionary<int, (CancellationTokenSource Cts, Task Task)> _activeSchedules = new();
+    private readonly ConcurrentDictionary<ScheduleKey, ScheduleEntry> _activeSchedules = new();
 
     public RequestScheduleManager(IKafkaProducer kafkaProducer, ILogger<RequestScheduleManager> logger)
     {
@@ -26,32 +30,40 @@ public class RequestScheduleManager : IRequestScheduleManager
 
     public async Task StartOrUpdateScheduleAsync(RequestSchedule schedule, CancellationToken cancellationToken)
     {
-        if (_activeSchedules.TryGetValue(schedule.UserId, out var entry))
+        var key = new ScheduleKey(schedule.UserId, schedule.Endpoint);
+
+        if (_activeSchedules.TryGetValue(key, out var entry))
         {
             entry.Cts.Cancel();
             await entry.Task;
         }
 
         var (cts, task) = CreateScheduleTask(schedule, cancellationToken);
-        _activeSchedules[schedule.UserId] = (cts, task);
+        _activeSchedules[key] = new ScheduleEntry(
+            Cts: cts,
+            Task: task,
+            Schedule: schedule
+        );
 
         var message = entry.Cts != null ? "Updated" : "Started";
         _logger.LogInformation("{Message} schedule for user {UserId}: {Rpm} RPM, endpoint: {Endpoint}",
             message, schedule.UserId, schedule.Rpm, schedule.Endpoint);
     }
 
-    public async Task StopScheduleAsync(int userId, CancellationToken cancellationToken)
+    public async Task StopScheduleAsync(int userId, string endpoint, CancellationToken cancellationToken)
     {
-        if (!_activeSchedules.TryRemove(userId, out var entry))
+        var key = new ScheduleKey(userId, endpoint);
+
+        if (!_activeSchedules.TryRemove(key, out var entry))
         {
-            _logger.LogInformation("No schedule for user {UserId}", userId);
+            _logger.LogInformation("No schedule for user {UserId} with endpoint {Endpoint}", userId, endpoint);
             return;
         }
 
         entry.Cts.Cancel();
         await entry.Task;
 
-        _logger.LogInformation("Stopped schedule for user {UserId}", userId);
+        _logger.LogInformation("Stopped schedule for user {UserId} with endpoint {Endpoint}", userId, endpoint);
     }
 
     public async Task StopAllSchedulesAsync(CancellationToken cancellationToken)
