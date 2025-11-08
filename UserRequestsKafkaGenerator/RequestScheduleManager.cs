@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using UserRequestsKafkaGenerator.Models;
 
 // ReSharper disable PossiblyMistakenUseOfCancellationToken
 

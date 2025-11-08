@@ -1,4 +1,4 @@
-namespace UserRequestsKafkaGenerator;
+namespace UserRequestsKafkaGenerator.Configuration;
 
 public class KafkaSettings
 {

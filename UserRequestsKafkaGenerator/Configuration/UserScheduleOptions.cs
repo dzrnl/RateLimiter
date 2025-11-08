@@ -1,4 +1,6 @@
-namespace UserRequestsKafkaGenerator;
+using UserRequestsKafkaGenerator.Models;
+
+namespace UserRequestsKafkaGenerator.Configuration;
 
 public class UserScheduleOptions
 {

@@ -1,6 +1,8 @@
 using System.Text.Json;
 using Confluent.Kafka;
 using Microsoft.Extensions.Options;
+using UserRequestsKafkaGenerator.Configuration;
+using UserRequestsKafkaGenerator.Models;
 
 namespace UserRequestsKafkaGenerator;
 
@@ -13,7 +15,7 @@ public sealed class KafkaProducer : IKafkaProducer
 {
     private readonly IProducer<Null, string> _producer;
     private readonly string _topic;
-    
+
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
@@ -37,7 +39,7 @@ public sealed class KafkaProducer : IKafkaProducer
         var json = JsonSerializer.Serialize(userRequest, JsonOptions);
         return _producer.ProduceAsync(
             _topic,
-            new Message<Null, string> { Value = json },
+            new Message<Null, string> {Value = json},
             cancellationToken);
     }
 

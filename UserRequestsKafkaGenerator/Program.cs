@@ -1,4 +1,6 @@
 ﻿using UserRequestsKafkaGenerator;
+using UserRequestsKafkaGenerator.Configuration;
+using UserRequestsKafkaGenerator.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
