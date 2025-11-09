@@ -21,12 +21,17 @@ public class RateLimitService : IRateLimitService
             _cache[limit.Route] = limit;
         }
 
-        _ = Task.Run(async () => {
-            await foreach (var updatedLimit in _rateLimitRepository.WatchChangesAsync())
+        Task.Factory.StartNew(
+            async () =>
             {
-                _cache[updatedLimit.Route] = updatedLimit;
-            }
-        });
+                await foreach (var updatedLimit in _rateLimitRepository.WatchChangesAsync())
+                {
+                    _cache[updatedLimit.Route] = updatedLimit;
+                }
+            },
+            CancellationToken.None,
+            TaskCreationOptions.LongRunning,
+            TaskScheduler.Default);
     }
 
     public IReadOnlyCollection<RateLimit> GetAllLimits()
