@@ -21,9 +21,9 @@ app.MapPost("/add", async (RequestSchedule schedule, CancellationToken cancellat
     return Results.Ok();
 });
 
-app.MapPost("/remove", async (int userId, string endpoint, CancellationToken cancellationToken) =>
+app.MapPost("/remove", async (UserRequest request, CancellationToken cancellationToken) =>
 {
-    await manager.StopScheduleAsync(userId, endpoint, cancellationToken);
+    await manager.StopScheduleAsync(request.UserId, request.Endpoint, cancellationToken);
     return Results.Ok();
 });
 
