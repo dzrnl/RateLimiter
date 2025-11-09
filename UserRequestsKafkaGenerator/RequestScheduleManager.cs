@@ -13,15 +13,13 @@ public interface IRequestScheduleManager
     IReadOnlyCollection<RequestSchedule> GetActiveSchedules();
 }
 
-public record ScheduleKey(int UserId, string Endpoint);
-
 public record ScheduleEntry(CancellationTokenSource Cts, Task Task, RequestSchedule Schedule);
 
 public class RequestScheduleManager : IRequestScheduleManager
 {
     private readonly IKafkaProducer _kafkaProducer;
     private readonly ILogger<RequestScheduleManager> _logger;
-    private readonly ConcurrentDictionary<ScheduleKey, ScheduleEntry> _activeSchedules = new();
+    private readonly ConcurrentDictionary<UserRequest, ScheduleEntry> _activeSchedules = new();
 
     public RequestScheduleManager(IKafkaProducer kafkaProducer, ILogger<RequestScheduleManager> logger)
     {
@@ -31,7 +29,7 @@ public class RequestScheduleManager : IRequestScheduleManager
 
     public async Task StartOrUpdateScheduleAsync(RequestSchedule schedule, CancellationToken cancellationToken)
     {
-        var key = new ScheduleKey(schedule.UserId, schedule.Endpoint);
+        var key = new UserRequest(schedule.UserId, schedule.Endpoint);
 
         if (_activeSchedules.TryGetValue(key, out var entry))
         {
@@ -53,7 +51,7 @@ public class RequestScheduleManager : IRequestScheduleManager
 
     public async Task StopScheduleAsync(int userId, string endpoint, CancellationToken cancellationToken)
     {
-        var key = new ScheduleKey(userId, endpoint);
+        var key = new UserRequest(userId, endpoint);
 
         if (!_activeSchedules.TryRemove(key, out var entry))
         {
