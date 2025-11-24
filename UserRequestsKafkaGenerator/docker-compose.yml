@@ -1,0 +1,39 @@
+services:
+  highload_kafka:
+    image: apache/kafka:3.7.0
+    container_name: highload_kafka
+    ports:
+      - "9092:9092"
+    volumes:
+      - ./kafka/entrypoint.sh:/entrypoint.sh:ro
+      - ./kafka/config/server.properties:/etc/kafka/server.properties:ro
+      - kafka_data:/var/lib/kafka/data
+    environment:
+      KAFKA_CONFIG: /etc/kafka/server.properties
+      DATA_DIR: /var/lib/kafka/data
+    entrypoint: ["/bin/bash","-lc","/entrypoint.sh"]
+
+  console:
+    image: docker.redpanda.com/redpandadata/console:v3.2.2
+    container_name: kafka_console
+    ports:
+      - "8079:8080"
+    environment:
+      KAFKA_BROKERS: highload_kafka:9092
+      SERVER_LISTENPORT: 8080
+    depends_on:
+      - highload_kafka
+
+  user-requests-kafka-generator:
+    build:
+      context: .
+    platform: linux/amd64
+    container_name: user-requests-kafka-generator
+    ports:
+      - "4998:5000"
+    depends_on:
+      - highload_kafka
+    restart: unless-stopped
+
+volumes:
+  kafka_data:
