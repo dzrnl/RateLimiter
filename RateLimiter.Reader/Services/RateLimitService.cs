@@ -26,9 +26,18 @@ public class RateLimitService : IRateLimitService
     {
         Task.Factory.StartNew(
             async () => {
-                await foreach (var updatedLimit in _rateLimitRepository.WatchChangesAsync())
+                await foreach (var change in _rateLimitRepository.WatchChangesAsync())
                 {
-                    _cache[updatedLimit.Route] = updatedLimit;
+                    switch (change)
+                    {
+                        case UpsertRateLimit upsert:
+                            _cache[upsert.Value.Route] = upsert.Value;
+                            break;
+
+                        case DeleteRateLimit del:
+                            _cache.TryRemove(del.Route, out _);
+                            break;
+                    }
                 }
             },
             CancellationToken.None,

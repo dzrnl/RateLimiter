@@ -6,5 +6,5 @@ public interface IRateLimitRepository
 {
     IAsyncEnumerable<RateLimit> GetAllAsync();
 
-    IAsyncEnumerable<RateLimit> WatchChangesAsync();
+    IAsyncEnumerable<RateLimitChange> WatchChangesAsync();
 }

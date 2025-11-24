@@ -43,14 +43,16 @@ public class RateLimitRepository : IRateLimitRepository
         }
     }
 
-    public async IAsyncEnumerable<RateLimit> WatchChangesAsync()
+    public async IAsyncEnumerable<RateLimitChange> WatchChangesAsync()
     {
         var pipeline = new EmptyPipelineDefinition<ChangeStreamDocument<RateLimitEntity>>()
             .Match(cs =>
                 cs.OperationType == ChangeStreamOperationType.Insert ||
                 cs.OperationType == ChangeStreamOperationType.Create ||
                 cs.OperationType == ChangeStreamOperationType.Update ||
-                cs.OperationType == ChangeStreamOperationType.Replace);
+                cs.OperationType == ChangeStreamOperationType.Replace ||
+                cs.OperationType == ChangeStreamOperationType.Delete
+            );
 
         var options = new ChangeStreamOptions
         {
@@ -63,9 +65,17 @@ public class RateLimitRepository : IRateLimitRepository
         {
             foreach (var change in cursor.Current)
             {
+                if (change.OperationType == ChangeStreamOperationType.Delete)
+                {
+                    var route = change.DocumentKey.GetValue("_id").AsString;
+                    yield return new DeleteRateLimit(route);
+                    continue;
+                }
+
                 if (change.FullDocument != null)
                 {
-                    yield return _mapper.ToModel(change.FullDocument);
+                    var model = _mapper.ToModel(change.FullDocument);
+                    yield return new UpsertRateLimit(model);
                 }
             }
         }
