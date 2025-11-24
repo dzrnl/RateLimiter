@@ -1,6 +1,9 @@
+volumes:
+  rate-limits-db-data:
 services:
-  rate-limits-db-service:
-    image: mongodb/mongodb-community-server:7.0.24-rc0-ubi8
+  limits-db:
+    image: mongo:8.0-noble
+    container_name: highload_limits_db
     ports: 
       - "5433:27017"
     environment:
@@ -8,17 +11,31 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: "${MONGO_PASSWORD}"
     volumes:
       - rate-limits-db-data:/data/db
+      - ./database/mongo-init.bash:/mongo-init.bash
+    networks: 
+      - highload
+    command:
+      ["bash", "/mongo-init.bash"]
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh --quiet --eval 'quit(rs.status().myState == 1 ? 0 : 1)'"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
   
   
-  rate-limits-service:
+  limits-writer:
     build:
       context: .
+    container_name: highload_limits_writer
     platform: linux/amd64
     environment:
-      DatabaseSettings__Uri: "mongodb://${MONGO_USER}:${MONGO_PASSWORD}@rate-limits-db-service:27017"
+      DatabaseSettings__Uri: "mongodb://${MONGO_USER}:${MONGO_PASSWORD}@limits-db:27017"
       DatabaseSettings__Database: "rateLimiterDB"
     ports:
       - "5001:5001"
-      
-volumes:
-  rate-limits-db-data:
+    networks: 
+      - highload
+    depends_on:
+      limits-db: 
+        condition: service_healthy

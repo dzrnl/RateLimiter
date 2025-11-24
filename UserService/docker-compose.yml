@@ -1,6 +1,10 @@
+volumes:
+  user-db-data:
+
 services:
-  user-db-service:
+  users-db:
     image: postgres:17
+    container_name: highload_users_db
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -9,6 +13,8 @@ services:
       - user-db-data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    networks: 
+      - highload
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 10s
@@ -18,10 +24,12 @@ services:
     restart: unless-stopped
 
 
-  user-db-migrations:
+
+  users-db-migrations:
     image: flyway/flyway:10
+    container_name: highload_users_db_migrations
     environment:
-      FLYWAY_URL: jdbc:postgresql://user-db-service:5432/${POSTGRES_DB}
+      FLYWAY_URL: jdbc:postgresql://users-db:5432/${POSTGRES_DB}
       FLYWAY_USER: ${POSTGRES_USER}
       FLYWAY_PASSWORD: ${POSTGRES_PASSWORD}
       FLYWAY_LOCATIONS: filesystem:/migrations
@@ -30,22 +38,24 @@ services:
       - ./Database/sql/migrations:/migrations:ro
     command: ${FLYWAY_MIGRATION_MODE:-migrate}
     depends_on:
-      user-db-service:
+      users-db:
         condition: service_healthy
+    networks: 
+      - highload
       
 
   user-service:
     build:
       context: .
+    container_name: highload_users_service
     platform: linux/amd64
     environment:
       ASPNETCORE_URLS: "http://+:5002"
     ports:
       - "5002:5002"
     depends_on:
-      user-db-migrations:
+      users-db-migrations:
         condition: service_completed_successfully
     restart: unless-stopped
-
-volumes:
-  user-db-data:
+    networks: 
+      - highload
