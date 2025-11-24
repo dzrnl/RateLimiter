@@ -4,7 +4,9 @@ namespace RateLimiter.Reader.Services;
 
 public interface IRateLimitService
 {
-    Task InitializeAsync();
+    Task LoadInitialCacheAsync();
+
+    void StartWatchingForUpdates();
 
     IReadOnlyCollection<RateLimit> GetAllLimits();
 }

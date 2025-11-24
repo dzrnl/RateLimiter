@@ -14,16 +14,18 @@ public class RateLimitService : IRateLimitService
         _rateLimitRepository = repository;
     }
 
-    public async Task InitializeAsync()
+    public async Task LoadInitialCacheAsync()
     {
         await foreach (var limit in _rateLimitRepository.GetAllAsync())
         {
             _cache[limit.Route] = limit;
         }
+    }
 
+    public void StartWatchingForUpdates()
+    {
         Task.Factory.StartNew(
-            async () =>
-            {
+            async () => {
                 await foreach (var updatedLimit in _rateLimitRepository.WatchChangesAsync())
                 {
                     _cache[updatedLimit.Route] = updatedLimit;

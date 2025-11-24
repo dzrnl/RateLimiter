@@ -17,9 +17,11 @@ public class RateLimitHostedService : IHostedService
     {
         _logger.LogInformation("Initializing rate limits cache...");
 
-        await _rateLimitService.InitializeAsync();
+        await _rateLimitService.LoadInitialCacheAsync();
 
         _logger.LogInformation("Rate limits cache initialized successfully");
+
+        _rateLimitService.StartWatchingForUpdates();
     }
 
     public Task StopAsync(CancellationToken cancellationToken)
