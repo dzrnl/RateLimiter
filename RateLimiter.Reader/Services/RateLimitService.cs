@@ -52,7 +52,7 @@ public class RateLimitService : IRateLimitService
 
     public Task ProcessUserRequestAsync(UserRequest request)
     {
-        _logger.LogInformation("Processing user request: {Request}", request);
+        _logger.LogError("Processing user request: {Request}", request);
         return Task.CompletedTask;
     }
 
