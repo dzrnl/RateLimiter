@@ -7,7 +7,7 @@ services:
     ports: 
       - "5433:27017"
     volumes:
-      - rate-limits-db-data:/data/db
+      # - rate-limits-db-data:/data/db
       - ./database/mongo-init.bash:/mongo-init.bash
     networks: 
       - highload

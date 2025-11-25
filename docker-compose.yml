@@ -7,3 +7,4 @@ include:
   - UserService/docker-compose.yml
   - RateLimiter.Reader/docker-compose.yml
   - RateLimiter.Writer/docker-compose.yml
+  - UserRequestsKafkaGenerator/docker-compose.yml
