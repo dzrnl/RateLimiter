@@ -8,10 +8,14 @@ public class RateLimitService : IRateLimitService
 {
     private readonly IRateLimitRepository _rateLimitRepository;
     private readonly ConcurrentDictionary<string, RateLimit> _cache = new();
+    private readonly ILogger<RateLimitService> _logger;
 
-    public RateLimitService(IRateLimitRepository repository)
+    public RateLimitService(
+        IRateLimitRepository repository,
+        ILogger<RateLimitService> logger)
     {
         _rateLimitRepository = repository;
+        _logger = logger;
     }
 
     public async Task LoadInitialCacheAsync()
@@ -25,7 +29,8 @@ public class RateLimitService : IRateLimitService
     public void StartWatchingForUpdates()
     {
         Task.Factory.StartNew(
-            async () => {
+            async () =>
+            {
                 await foreach (var change in _rateLimitRepository.WatchChangesAsync())
                 {
                     switch (change)
@@ -43,6 +48,12 @@ public class RateLimitService : IRateLimitService
             CancellationToken.None,
             TaskCreationOptions.LongRunning,
             TaskScheduler.Default);
+    }
+
+    public Task ProcessUserRequestAsync(UserRequest request)
+    {
+        _logger.LogInformation("Processing user request: {Request}", request);
+        return Task.CompletedTask;
     }
 
     public IReadOnlyCollection<RateLimit> GetAllLimits()
