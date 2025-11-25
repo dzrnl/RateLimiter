@@ -1,7 +1,6 @@
 using RateLimiter.Reader.Controllers;
 using RateLimiter.Reader.Controllers.Extensions;
 using RateLimiter.Reader.Kafka.Extensions;
-using RateLimiter.Reader.Redis.Extensions;
 using RateLimiter.Reader.Repositories.Extensions;
 using RateLimiter.Reader.Services.Extensions;
 
@@ -12,7 +11,6 @@ builder.Services.AddGrpc();
 builder.Services.AddApplication();
 builder.Services.AddInfrastructureDataAccess(builder.Configuration);
 builder.Services.AddKafkaConsumer(builder.Configuration);
-builder.Services.AddRedis(builder.Configuration);
 builder.Services.AddGrpcServices();
 
 var app = builder.Build();

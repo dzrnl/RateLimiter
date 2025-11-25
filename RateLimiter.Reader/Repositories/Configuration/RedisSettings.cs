@@ -1,4 +1,4 @@
-namespace RateLimiter.Reader.Redis;
+namespace RateLimiter.Reader.Repositories.Configuration;
 
 public class RedisSettings
 {
