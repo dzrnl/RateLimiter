@@ -6,13 +6,8 @@ public static class ServiceCollectionExtensions
         this IServiceCollection collection,
         IConfiguration configuration)
     {
-        collection.AddHostedService<TestBackgroundService>();
-        
         collection.Configure<KafkaSettings>(configuration.GetSection(nameof(KafkaSettings)));
-
-        collection.AddSingleton<IRateLimitKafkaConsumer, RateLimitKafkaConsumer>();
         collection.AddHostedService<RateLimitKafkaConsumer>();
-
         return collection;
     }
 }

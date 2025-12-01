@@ -39,20 +39,13 @@ public sealed class RateLimitKafkaConsumer : BackgroundService, IRateLimitKafkaC
             AutoOffsetReset = AutoOffsetReset.Earliest,
             EnableAutoCommit = false
         };
-        
-        _logger.LogWarning("init Kafka consumer 0");
-
 
         _consumer = new ConsumerBuilder<Ignore, string>(config).Build();
-        
-        _logger.LogWarning("init Kafka consumer");
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _logger.LogWarning("Creating Kafka consumer for topic {Topic}", _topic);
         _consumer.Subscribe(_topic);
-        _logger.LogWarning("Started Kafka consumer");
 
         while (!stoppingToken.IsCancellationRequested)
         {
@@ -67,13 +60,10 @@ public sealed class RateLimitKafkaConsumer : BackgroundService, IRateLimitKafkaC
 
                 try
                 {
-                    _logger.LogWarning("Received Kafka Message: {Message}", jsonMessage);
                     var userRequest = JsonSerializer.Deserialize<UserRequest>(jsonMessage, JsonOptions);
 
                     if (userRequest is not null)
                     {
-                        _logger.LogWarning("is not null");
-
                         await _rateLimitService.ProcessUserRequestAsync(userRequest);
                     }
                 }
