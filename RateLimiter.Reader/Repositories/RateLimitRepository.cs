@@ -75,16 +75,13 @@ public class RateLimitRepository : IRateLimitRepository
             {
                 if (change.OperationType == ChangeStreamOperationType.Delete)
                 {
-                    var route = change.DocumentKey.GetValue("_id").AsString;
+                    var route = change.FullDocument.Route;
                     yield return new DeleteRateLimit(route);
                     continue;
                 }
 
-                if (change.FullDocument != null)
-                {
-                    var model = _mapper.ToModel(change.FullDocument);
-                    yield return new UpsertRateLimit(model);
-                }
+                var model = _mapper.ToModel(change.FullDocument);
+                yield return new UpsertRateLimit(model);
             }
         }
     }
