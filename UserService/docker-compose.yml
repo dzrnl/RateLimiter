@@ -23,8 +23,6 @@ services:
       start_period: 10s
     restart: unless-stopped
 
-
-
   users-db-migrations:
     image: flyway/flyway:10
     container_name: highload_users_db_migrations
@@ -42,7 +40,6 @@ services:
         condition: service_healthy
     networks: 
       - highload
-      
 
   user-service:
     build:

@@ -1,4 +1,4 @@
-namespace UserService.Repositories;
+namespace UserService.Repositories.Configuration;
 
 public class DatabaseSettings
 {
