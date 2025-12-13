@@ -12,6 +12,8 @@ services:
       KAFKA_CONFIG: /etc/kafka/server.properties
       DATA_DIR: /var/lib/kafka/data
     entrypoint: ["/bin/bash","-lc","/entrypoint.sh"]
+    networks:
+      - highload
 
   console:
     image: docker.redpanda.com/redpandadata/console:v3.2.2
@@ -23,6 +25,8 @@ services:
       SERVER_LISTENPORT: 8080
     depends_on:
       - highload_kafka
+    networks:
+      - highload
 
   user-requests-kafka-generator:
     build:
@@ -34,6 +38,8 @@ services:
     depends_on:
       - highload_kafka
     restart: unless-stopped
+    networks:
+      - highload
 
 volumes:
   kafka_data:
