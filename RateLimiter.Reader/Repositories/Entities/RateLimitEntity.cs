@@ -4,6 +4,6 @@ namespace RateLimiter.Reader.Repositories.Entities;
 
 [BsonIgnoreExtraElements]
 public record RateLimitEntity(
-    string Route,
+    [property: BsonId] string Route,
     int RequestsPerMinute
 );

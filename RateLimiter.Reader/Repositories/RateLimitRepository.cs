@@ -75,7 +75,7 @@ public class RateLimitRepository : IRateLimitRepository
             {
                 if (change.OperationType == ChangeStreamOperationType.Delete)
                 {
-                    var route = change.FullDocument.Route;
+                    var route = change.DocumentKey.GetValue("_id").AsString;
                     yield return new DeleteRateLimit(route);
                     continue;
                 }
