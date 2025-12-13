@@ -43,7 +43,12 @@ public sealed class RateLimitKafkaConsumer : BackgroundService, IRateLimitKafkaC
         _consumer = new ConsumerBuilder<Ignore, string>(config).Build();
     }
 
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    protected override Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        return Task.Factory.StartNew(() => ConsumerLoop(stoppingToken), TaskCreationOptions.LongRunning);
+    }
+
+    private async Task ConsumerLoop(CancellationToken stoppingToken)
     {
         _consumer.Subscribe(_topic);
 
