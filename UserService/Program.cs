@@ -1,5 +1,6 @@
 using UserService.Controllers;
 using UserService.Controllers.Extensions;
+using UserService.Controllers.Interceptors;
 using UserService.Repositories.Extensions;
 using UserService.Services.Extensions;
 
