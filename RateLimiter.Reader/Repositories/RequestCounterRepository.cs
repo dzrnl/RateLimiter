@@ -1,9 +1,8 @@
 namespace RateLimiter.Reader.Repositories;
 
-
 public interface IRequestCounterRepository
 {
-    Task<bool> IsRequestAllowedAsync(int userId, string endpoint, int limit);
+    Task<bool> TryConsumeRequestAsync(int userId, string endpoint, int limit);
 }
 
 public class RequestCounterRepository : IRequestCounterRepository
@@ -15,12 +14,16 @@ public class RequestCounterRepository : IRequestCounterRepository
         _redisClient = redisClient;
     }
 
-    public async Task<bool> IsRequestAllowedAsync(int userId, string endpoint, int limit)
+    private static string CounterKey(int userId, string endpoint)
+        => $"rate_limit:counter:{userId}:{endpoint}";
+
+    public async Task<bool> TryConsumeRequestAsync(int userId, string endpoint, int limit)
     {
         var ttl = TimeSpan.FromMinutes(1);
-        
-        var currentCount = await _redisClient.IncrementCounterAsync(userId, endpoint, ttl);
-        
+
+        var key = CounterKey(userId, endpoint);
+        var currentCount = await _redisClient.IncrementCounterAsync(key, ttl);
+
         return currentCount <= limit;
     }
 }

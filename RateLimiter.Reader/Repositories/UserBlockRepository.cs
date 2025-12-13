@@ -16,13 +16,18 @@ public class UserBlockRepository : IUserBlockRepository
         _redisClient = redisClient;
     }
 
+    private static string BlockKey(int userId, string endpoint)
+        => $"rate_limit:block:{userId}:{endpoint}";
+
     public async Task BlockUserAsync(int userId, string endpoint, TimeSpan blockDuration)
     {
-        await _redisClient.SetBlockFlagAsync(userId, endpoint, blockDuration);
+        var key = BlockKey(userId, endpoint);
+        await _redisClient.SetFlagAsync(key, blockDuration);
     }
 
     public async Task<bool> IsUserBlockedAsync(int userId, string endpoint)
     {
-        return await _redisClient.GetBlockFlagAsync(userId, endpoint);
+        var key = BlockKey(userId, endpoint);
+        return await _redisClient.KeyExistsAsync(key);
     }
 }

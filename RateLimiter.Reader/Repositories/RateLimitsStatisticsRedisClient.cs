@@ -1,46 +1,35 @@
 using StackExchange.Redis;
 
-namespace RateLimiter.Reader.Repositories
+namespace RateLimiter.Reader.Repositories;
+
+public class RateLimitsStatisticsRedisClient
 {
-    public class RateLimitsStatisticsRedisClient
+    private readonly IDatabase _database;
+
+    public RateLimitsStatisticsRedisClient(IConnectionMultiplexer redis)
     {
-        private readonly IDatabase _database;
+        _database = redis.GetDatabase();
+    }
 
-        public RateLimitsStatisticsRedisClient(IConnectionMultiplexer redis)
+    public async Task<long> IncrementCounterAsync(string key, TimeSpan ttl)
+    {
+        var result = await _database.StringIncrementAsync(key);
+
+        if (result == 1)
         {
-            _database = redis.GetDatabase();
+            await _database.KeyExpireAsync(key, ttl);
         }
 
-        public async Task<long> IncrementCounterAsync(int userId, string endpoint, TimeSpan ttl)
-        {
-            var key = GenerateCounterKey(userId, endpoint);
+        return result;
+    }
 
-            var result = await _database.StringIncrementAsync(key);
+    public async Task SetFlagAsync(string key, TimeSpan ttl)
+    {
+        await _database.StringSetAsync(key, 1, ttl);
+    }
 
-            if (result == 1)
-            {
-                await _database.KeyExpireAsync(key, ttl);
-            }
-
-            return result;
-        }
-
-        public async Task SetBlockFlagAsync(int userId, string endpoint, TimeSpan blockDuration)
-        {
-            var key = GenerateBlockKey(userId, endpoint);
-            await _database.KeyExpireAsync(key, blockDuration);
-        }
-
-        public async Task<bool> GetBlockFlagAsync(int userId, string endpoint)
-        {
-            var key = GenerateBlockKey(userId, endpoint);
-            return await _database.KeyExistsAsync(key);
-        }
-
-        private static string GenerateCounterKey(int userId, string endpoint)
-            => $"rate_limit:counter:{userId}:{endpoint}";
-
-        private static string GenerateBlockKey(int userId, string endpoint)
-            => $"rate_limit:block:{userId}:{endpoint}";
+    public Task<bool> KeyExistsAsync(string key)
+    {
+        return _database.KeyExistsAsync(key);
     }
 }
