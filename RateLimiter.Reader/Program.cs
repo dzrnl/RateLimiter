@@ -8,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddGrpc();
 
-builder.Services.AddApplication();
+builder.Services.AddApplication(builder.Configuration);
 builder.Services.AddInfrastructureDataAccess(builder.Configuration);
 builder.Services.AddKafkaConsumer(builder.Configuration);
 builder.Services.AddGrpcServices();

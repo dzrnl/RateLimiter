@@ -23,9 +23,9 @@ public class RateLimitsStatisticsRedisClient
         return result;
     }
 
-    public async Task SetFlagAsync(string key, TimeSpan ttl)
+    public Task<bool> SetFlagAsync(string key, TimeSpan ttl)
     {
-        await _database.StringSetAsync(key, 1, ttl);
+        return _database.StringSetAsync(key, 1, ttl);
     }
 
     public Task<bool> KeyExistsAsync(string key)

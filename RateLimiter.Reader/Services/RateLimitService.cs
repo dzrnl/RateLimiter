@@ -1,7 +1,6 @@
 using System.Collections.Concurrent;
 using Microsoft.Extensions.Options;
 using RateLimiter.Reader.Repositories;
-using RateLimiter.Reader.Repositories.Configuration;
 using RateLimiter.Reader.Services.Models;
 
 namespace RateLimiter.Reader.Services;
@@ -63,8 +62,6 @@ public class RateLimitService : IRateLimitService
 
     public async Task ProcessUserRequestAsync(UserRequest request)
     {
-        _logger.LogInformation("Processing user request: {Request}", request);
-
         if (!_cache.TryGetValue(request.Endpoint, out var limit))
         {
             return;
@@ -75,8 +72,19 @@ public class RateLimitService : IRateLimitService
             request.Endpoint,
             limit.RequestsPerMinute);
 
-        if (!allowed)
+        if (allowed)
         {
+            return;
+        }
+
+        var blocked = await _userBlockRepository.IsUserBlockedAsync(request.UserId, request.Endpoint);
+
+        if (!blocked)
+        {
+            _logger.LogInformation("Blocking user '{UserId}' for endpoint '{Endpoint}'",
+                request.UserId,
+                request.Endpoint);
+
             await _userBlockRepository.BlockUserAsync(request.UserId, request.Endpoint, _blockDuration);
         }
     }

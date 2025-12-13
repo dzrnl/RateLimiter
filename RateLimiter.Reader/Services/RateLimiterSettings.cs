@@ -1,4 +1,4 @@
-namespace RateLimiter.Reader.Repositories.Configuration;
+namespace RateLimiter.Reader.Services;
 
 public class RateLimiterSettings
 {
