@@ -15,23 +15,20 @@ public static class ServiceCollectionExtensions
         collection.Configure<DatabaseSettings>(configuration.GetSection(nameof(DatabaseSettings)));
         collection.Configure<RedisSettings>(configuration.GetSection(nameof(RedisSettings)));
 
-        collection.AddSingleton<IMongoClient>(sp =>
-        {
+        collection.AddSingleton<IMongoClient>(sp => {
             var settings = sp.GetRequiredService<IOptions<DatabaseSettings>>().Value;
             return new MongoClient(settings.Uri);
         });
 
-        collection.AddSingleton<IMongoDatabase>(sp =>
-        {
+        collection.AddSingleton<IMongoDatabase>(sp => {
             var settings = sp.GetRequiredService<IOptions<DatabaseSettings>>().Value;
             return sp.GetRequiredService<IMongoClient>().GetDatabase(settings.Database);
         });
 
-        var conventionPack = new ConventionPack {new CamelCaseElementNameConvention()};
+        var conventionPack = new ConventionPack { new CamelCaseElementNameConvention() };
         ConventionRegistry.Register("camelCase", conventionPack, _ => true);
 
-        collection.AddSingleton<IConnectionMultiplexer>(sp =>
-        {
+        collection.AddSingleton<IConnectionMultiplexer>(sp => {
             var settings = sp.GetRequiredService<IOptions<RedisSettings>>().Value;
             return ConnectionMultiplexer.Connect(settings.ConnectionString);
         });
