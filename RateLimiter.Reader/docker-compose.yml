@@ -25,6 +25,9 @@ services:
   redisinsight:
     image: redis/redisinsight:latest
     container_name: redisinsight
+    environment:
+      RI_REDIS_HOST: redis
+      RI_REDIS_PORT: 6379
     ports:
       - "5540:5540"
     networks:
