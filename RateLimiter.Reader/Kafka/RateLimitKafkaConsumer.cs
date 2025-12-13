@@ -36,45 +36,52 @@ public sealed class RateLimitKafkaConsumer : BackgroundService, IRateLimitKafkaC
         {
             BootstrapServers = settings.BootstrapServers,
             GroupId = settings.GroupId,
-            AutoOffsetReset = AutoOffsetReset.Earliest,
+            AutoOffsetReset = AutoOffsetReset.Latest,
             EnableAutoCommit = false
         };
 
         _consumer = new ConsumerBuilder<Ignore, string>(config).Build();
     }
 
-    protected override async Task ExecuteAsync(CancellationToken cancellationToken)
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _consumer.Subscribe(_topic);
 
-        while (!cancellationToken.IsCancellationRequested)
+        while (!stoppingToken.IsCancellationRequested)
         {
+            var consumeResult = _consumer.Consume(stoppingToken);
+
+            if (consumeResult?.Message?.Value is not { } jsonMessage)
+            {
+                continue;
+            }
+
             try
             {
-                var consumeResult = _consumer.Consume(cancellationToken);
+                var userRequest = JsonSerializer.Deserialize<UserRequest>(jsonMessage, JsonOptions);
 
-                if (consumeResult?.Message?.Value is not { } jsonMessage)
+                if (userRequest is null)
                 {
+                    _logger.LogWarning("Empty message, skipping");
+                    _consumer.Commit(consumeResult);
                     continue;
                 }
 
-                try
-                {
-                    var userRequest = JsonSerializer.Deserialize<UserRequest>(jsonMessage, JsonOptions);
-
-                    if (userRequest is not null)
-                    {
-                        await _rateLimitService.ProcessUserRequestAsync(userRequest);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Error deserializing Kafka message");
-                }
+                await _rateLimitService.ProcessUserRequestAsync(userRequest);
+                _consumer.Commit(consumeResult);
             }
             catch (OperationCanceledException)
             {
                 break;
+            }
+            catch (ConsumeException ex)
+            {
+                _logger.LogError(ex, "Consume error");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Invalid message, skipping");
+                _consumer.Commit(consumeResult);
             }
         }
 
