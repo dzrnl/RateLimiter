@@ -1,5 +1,6 @@
 using AutoFixture;
 using AutoFixture.AutoMoq;
+using Microsoft.Extensions.Caching.Memory;
 using Moq;
 using UserService.Repositories;
 using UserService.Services;
@@ -19,7 +20,10 @@ public class UserServiceTests
     public UserServiceTests()
     {
         _repositoryMock = new Mock<IUserRepository>();
-        _userService = new DomainUserService(_repositoryMock.Object);
+
+        var memoryCache = new MemoryCache(new MemoryCacheOptions());
+        _userService = new DomainUserService(_repositoryMock.Object, memoryCache);
+
         _fixture = new Fixture()
             .Customize(new AutoMoqCustomization
             {
@@ -93,9 +97,9 @@ public class UserServiceTests
         var name = _fixture.Create<string>();
         var surname = _fixture.Create<string>();
         var users = Enumerable.Range(0, 3)
-            .Select(_ =>
-            {
+            .Select(i => {
                 var mock = new Mock<IUserModel>();
+                mock.SetupGet(x => x.Id).Returns(i);
                 mock.SetupGet(x => x.Name).Returns(name);
                 mock.SetupGet(x => x.Surname).Returns(surname);
                 return mock.Object;
@@ -137,6 +141,10 @@ public class UserServiceTests
     {
         // Arrange
         var userId = _fixture.Create<int>();
+        var user = CreateUserModel(userId);
+
+        _repositoryMock.Setup(r => r.FindByIdAsync(userId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(user);
         _repositoryMock.Setup(r => r.DeleteAsync(userId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(userId);
 
@@ -158,16 +166,42 @@ public class UserServiceTests
         await Assert.ThrowsAsync<UserNotFoundException>(() => _userService.DeleteUserAsync(1, CancellationToken.None));
     }
 
-    private IUserModel CreateUserModel(int id, string login, string password, string name, string surname, int age)
+    [Fact]
+    public async Task GetUserByIdAsync_ShouldUseCacheOnSecondCall()
+    {
+        // Arrange
+        var userId = _fixture.Create<int>();
+        var user = CreateUserModel(userId);
+
+        _repositoryMock
+            .Setup(r => r.FindByIdAsync(userId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(user);
+
+        // Act
+        var result1 = await _userService.GetUserByIdAsync(userId, CancellationToken.None);
+        var result2 = await _userService.GetUserByIdAsync(userId, CancellationToken.None);
+
+        // Assert
+        Assert.Same(result1, result2);
+
+        _repositoryMock.Verify(r => r.FindByIdAsync(userId, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    private IUserModel CreateUserModel(int id,
+        string? login = null,
+        string? password = null,
+        string? name = null,
+        string? surname = null,
+        int? age = null)
     {
         var mock = _fixture.Create<Mock<IUserModel>>();
 
         mock.SetupGet(x => x.Id).Returns(id);
-        mock.SetupGet(x => x.Login).Returns(login);
-        mock.SetupGet(x => x.Password).Returns(password);
-        mock.SetupGet(x => x.Name).Returns(name);
-        mock.SetupGet(x => x.Surname).Returns(surname);
-        mock.SetupGet(x => x.Age).Returns(age);
+        mock.SetupGet(x => x.Login).Returns(login ?? _fixture.Create<string>());
+        mock.SetupGet(x => x.Password).Returns(password ?? _fixture.Create<string>());
+        mock.SetupGet(x => x.Name).Returns(name ?? _fixture.Create<string>());
+        mock.SetupGet(x => x.Surname).Returns(surname ?? _fixture.Create<string>());
+        mock.SetupGet(x => x.Age).Returns(age ?? _fixture.Create<int>());
 
         return mock.Object;
     }
