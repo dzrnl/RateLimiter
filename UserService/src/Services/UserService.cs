@@ -1,6 +1,8 @@
 using System.Collections.Concurrent;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
 using UserService.Repositories;
+using UserService.Services.Configuration;
 using UserService.Services.Dtos;
 using UserService.Services.Models;
 
@@ -14,10 +16,18 @@ public class UserService : IUserService
     private static string UserByIdKey(int id) => $"user:id:{id}";
     private static string UserByNameKey(string name, string surname) => $"user:list:{name}:{surname}";
 
-    public UserService(IUserRepository userRepository, IMemoryCache cache)
+    private readonly MemoryCacheEntryOptions _cacheOptions;
+
+    public UserService(IUserRepository userRepository, IMemoryCache cache, IOptions<CacheSettings> cacheSettings)
     {
         _userRepository = userRepository;
         _cache = cache;
+        
+        _cacheOptions = new MemoryCacheEntryOptions
+        {
+            AbsoluteExpirationRelativeToNow = cacheSettings.Value.AbsoluteExpiration,
+            SlidingExpiration = cacheSettings.Value.SlidingExpiration
+        };
     }
 
     public async Task<IUserModel> CreateUserAsync(ICreateUserDto dto, CancellationToken cancellationToken)
@@ -30,7 +40,7 @@ public class UserService : IUserService
 
         var user = await _userRepository.AddAsync(dto, cancellationToken);
 
-        _cache.Set(UserByIdKey(user.Id), user);
+        _cache.Set(UserByIdKey(user.Id), user, _cacheOptions);
         if (_cache.TryGetValue(
                 UserByNameKey(user.Name, user.Surname),
                 out ConcurrentDictionary<int, IUserModel>? list)
@@ -56,7 +66,7 @@ public class UserService : IUserService
             throw UserNotFoundException.For(nameof(IUserModel.Id), userId);
         }
 
-        _cache.Set(cacheKey, user);
+        _cache.Set(cacheKey, user, _cacheOptions);
         return user;
     }
 
@@ -74,7 +84,7 @@ public class UserService : IUserService
             users.ToDictionary(u => u.Id)
         );
 
-        _cache.Set(cacheKey, dict);
+        _cache.Set(cacheKey, dict, _cacheOptions);
         return users;
     }
 
@@ -92,7 +102,7 @@ public class UserService : IUserService
             throw UserNotFoundException.For(nameof(IUserModel.Id), dto.Id);
         }
 
-        _cache.Set(UserByIdKey(updatedUser.Id), updatedUser);
+        _cache.Set(UserByIdKey(updatedUser.Id), updatedUser, _cacheOptions);
 
         var oldCacheNameKey = UserByNameKey(existingUser.Name, existingUser.Surname);
         if (_cache.TryGetValue(oldCacheNameKey, out ConcurrentDictionary<int, IUserModel>? oldList) && oldList != null)

@@ -1,9 +1,11 @@
 using AutoFixture;
 using AutoFixture.AutoMoq;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
 using Moq;
 using UserService.Repositories;
 using UserService.Services;
+using UserService.Services.Configuration;
 using UserService.Services.Dtos;
 using UserService.Services.Models;
 using Xunit;
@@ -22,7 +24,13 @@ public class UserServiceTests
         _repositoryMock = new Mock<IUserRepository>();
 
         var memoryCache = new MemoryCache(new MemoryCacheOptions());
-        _userService = new DomainUserService(_repositoryMock.Object, memoryCache);
+        var cacheSettings = Options.Create(new CacheSettings
+        {
+            AbsoluteExpirationMinutes = 60,
+            SlidingExpirationMinutes = 10
+        });
+
+        _userService = new DomainUserService(_repositoryMock.Object, memoryCache, cacheSettings);
 
         _fixture = new Fixture()
             .Customize(new AutoMoqCustomization
