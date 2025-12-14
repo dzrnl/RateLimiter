@@ -20,7 +20,6 @@ public static class ServiceCollectionExtensions
 
         collection.AddSingleton<IUserRateLimitRepository, UserRateLimitRepository>();
         collection.AddSingleton<IUserRepository, UserRepository>();
-        collection.AddSingleton<UserMapper>();
 
         return collection;
     }

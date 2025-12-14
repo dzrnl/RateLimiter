@@ -5,13 +5,13 @@ namespace UserService.Services;
 
 public interface IUserService
 {
-    Task<UserModel> CreateUserAsync(CreateUserDto dto, CancellationToken cancellationToken);
+    Task<IUserModel> CreateUserAsync(ICreateUserDto dto, CancellationToken cancellationToken);
 
-    Task<UserModel> GetUserByIdAsync(int userId, CancellationToken cancellationToken);
+    Task<IUserModel> GetUserByIdAsync(int userId, CancellationToken cancellationToken);
 
-    Task<UserModel[]> FindUsersByNameAsync(string name, string surname, CancellationToken cancellationToken);
+    Task<IUserModel[]> FindUsersByNameAsync(string name, string surname, CancellationToken cancellationToken);
 
-    Task<UserModel> UpdateUserAsync(UpdateUserDto dto, CancellationToken cancellationToken);
+    Task<IUserModel> UpdateUserAsync(IUpdateUserDto dto, CancellationToken cancellationToken);
 
     Task<int> DeleteUserAsync(int userId, CancellationToken cancellationToken);
 }

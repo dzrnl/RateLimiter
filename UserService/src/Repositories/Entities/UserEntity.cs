@@ -1,6 +1,8 @@
+using UserService.Services.Models;
+
 namespace UserService.Repositories.Entities;
 
-public record UserEntity
+public record UserEntity : IUserModel
 {
     public int Id { get; set; }
 

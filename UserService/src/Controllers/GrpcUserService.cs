@@ -28,8 +28,7 @@ public class GrpcUserService : UserServiceBase
     {
         _createValidator.ValidateAndThrow(request);
 
-        var createModel = _mapper.ToCreateModel(request);
-        var user = await _userService.CreateUserAsync(createModel, context.CancellationToken);
+        var user = await _userService.CreateUserAsync(request, context.CancellationToken);
 
         return new UserId { Id = user.Id };
     }
@@ -54,8 +53,7 @@ public class GrpcUserService : UserServiceBase
     {
         _updateValidator.ValidateAndThrow(request);
 
-        var updateModel = _mapper.ToUpdateModel(request);
-        var user = await _userService.UpdateUserAsync(updateModel, context.CancellationToken);
+        var user = await _userService.UpdateUserAsync(request, context.CancellationToken);
 
         return new UserId { Id = user.Id };
     }
