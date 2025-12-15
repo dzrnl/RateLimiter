@@ -2,6 +2,7 @@ using Dapper;
 using Microsoft.Extensions.Options;
 using Npgsql;
 using System.Data;
+using UserService.Repositories.Configuration;
 using UserService.Repositories.Entities;
 using UserService.Repositories.Queries;
 using UserService.Services.Dtos;

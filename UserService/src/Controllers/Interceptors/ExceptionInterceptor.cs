@@ -2,7 +2,7 @@ using Grpc.Core;
 using Grpc.Core.Interceptors;
 using UserService.Services;
 
-namespace UserService.Controllers;
+namespace UserService.Controllers.Interceptors;
 
 public class ExceptionInterceptor : Interceptor
 {
