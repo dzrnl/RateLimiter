@@ -1,9 +1,17 @@
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
+using RateLimiter.Reader.Repositories.Configuration;
 using RateLimiter.Reader.Repositories.Entities;
 using RateLimiter.Reader.Services.Models;
 
 namespace RateLimiter.Reader.Repositories;
+
+public interface IRateLimitRepository
+{
+    IAsyncEnumerable<RateLimit> GetAllAsync();
+
+    IAsyncEnumerable<RateLimitChange> WatchChangesAsync();
+}
 
 public class RateLimitRepository : IRateLimitRepository
 {
@@ -72,11 +80,8 @@ public class RateLimitRepository : IRateLimitRepository
                     continue;
                 }
 
-                if (change.FullDocument != null)
-                {
-                    var model = _mapper.ToModel(change.FullDocument);
-                    yield return new UpsertRateLimit(model);
-                }
+                var model = _mapper.ToModel(change.FullDocument);
+                yield return new UpsertRateLimit(model);
             }
         }
     }

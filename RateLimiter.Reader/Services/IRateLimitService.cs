@@ -8,5 +8,7 @@ public interface IRateLimitService
 
     void StartWatchingForUpdates();
 
+    Task ProcessUserRequestAsync(UserRequest request);
+
     IReadOnlyCollection<RateLimit> GetAllLimits();
 }

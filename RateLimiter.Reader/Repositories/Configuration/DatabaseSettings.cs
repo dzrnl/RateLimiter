@@ -1,4 +1,4 @@
-namespace RateLimiter.Reader.Repositories;
+namespace RateLimiter.Reader.Repositories.Configuration;
 
 public class DatabaseSettings
 {

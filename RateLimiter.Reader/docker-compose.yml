@@ -5,7 +5,7 @@ services:
     container_name: highload_limits_reader
     platform: linux/amd64
     environment:
-      DatabaseSettings__Uri: "mongodb://${MONGO_USER}:${MONGO_PASSWORD}@limits-db:27017"
+      DatabaseSettings__Uri: "mongodb://limits-db:27017"
       DatabaseSettings__Database: "rateLimiterDB"
     ports:
       - "4999:5000"
@@ -14,3 +14,23 @@ services:
     depends_on:
       limits-db: 
         condition: service_healthy
+
+  redis:
+    image: redis:bookworm
+    ports:
+      - "6379:6379"
+    networks:
+      - highload
+  
+  redisinsight:
+    image: redis/redisinsight:latest
+    container_name: redisinsight
+    environment:
+      RI_REDIS_HOST: redis
+      RI_REDIS_PORT: 6379
+    ports:
+      - "5540:5540"
+    networks:
+      - highload
+    depends_on:
+      - redis

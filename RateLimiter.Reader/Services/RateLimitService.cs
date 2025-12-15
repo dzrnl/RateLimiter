@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using Microsoft.Extensions.Options;
 using RateLimiter.Reader.Repositories;
 using RateLimiter.Reader.Services.Models;
 
@@ -6,12 +7,26 @@ namespace RateLimiter.Reader.Services;
 
 public class RateLimitService : IRateLimitService
 {
-    private readonly IRateLimitRepository _rateLimitRepository;
-    private readonly ConcurrentDictionary<string, RateLimit> _cache = new();
+    private readonly TimeSpan _blockDuration;
 
-    public RateLimitService(IRateLimitRepository repository)
+    private readonly IRateLimitRepository _rateLimitRepository;
+    private readonly IRequestCounterRepository _requestCounterRepository;
+    private readonly IUserBlockRepository _userBlockRepository;
+    private readonly ConcurrentDictionary<string, RateLimit> _cache = new();
+    private readonly ILogger<RateLimitService> _logger;
+
+    public RateLimitService(
+        IRateLimitRepository repository,
+        IRequestCounterRepository requestCounterRepository,
+        IUserBlockRepository userBlockRepository,
+        IOptions<RateLimiterSettings> rateLimiterSettings,
+        ILogger<RateLimitService> logger)
     {
+        _blockDuration = rateLimiterSettings.Value.BlockDuration;
         _rateLimitRepository = repository;
+        _requestCounterRepository = requestCounterRepository;
+        _userBlockRepository = userBlockRepository;
+        _logger = logger;
     }
 
     public async Task LoadInitialCacheAsync()
@@ -43,6 +58,35 @@ public class RateLimitService : IRateLimitService
             CancellationToken.None,
             TaskCreationOptions.LongRunning,
             TaskScheduler.Default);
+    }
+
+    public async Task ProcessUserRequestAsync(UserRequest request)
+    {
+        if (!_cache.TryGetValue(request.Endpoint, out var limit))
+        {
+            return;
+        }
+
+        var allowed = await _requestCounterRepository.TryConsumeRequestAsync(
+            request.UserId,
+            request.Endpoint,
+            limit.RequestsPerMinute);
+
+        if (allowed)
+        {
+            return;
+        }
+
+        var blocked = await _userBlockRepository.IsUserBlockedAsync(request.UserId, request.Endpoint);
+
+        if (!blocked)
+        {
+            _logger.LogInformation("Blocking user '{UserId}' for endpoint '{Endpoint}'",
+                request.UserId,
+                request.Endpoint);
+
+            await _userBlockRepository.BlockUserAsync(request.UserId, request.Endpoint, _blockDuration);
+        }
     }
 
     public IReadOnlyCollection<RateLimit> GetAllLimits()
