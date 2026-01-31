@@ -14,7 +14,7 @@ builder.Services.AddGrpc(options =>
 });
 
 builder.Services.AddApplication(builder.Configuration);
-builder.Services.AddMemoryCache(); 
+builder.Services.AddMemoryCache();
 builder.Services.AddInfrastructureDataAccess(builder.Configuration);
 builder.Services.AddGrpcServices(builder.Configuration);
 
