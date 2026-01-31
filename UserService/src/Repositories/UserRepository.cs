@@ -13,15 +13,13 @@ namespace UserService.Repositories;
 public class UserRepository : IUserRepository
 {
     private readonly string _connectionString;
-    private readonly UserMapper _mapper;
 
-    public UserRepository(IOptions<DatabaseSettings> options, UserMapper mapper)
+    public UserRepository(IOptions<DatabaseSettings> options)
     {
         _connectionString = options.Value.ConnectionString;
-        _mapper = mapper;
     }
 
-    public async Task<UserModel> AddAsync(CreateUserDto dto, CancellationToken cancellationToken)
+    public async Task<IUserModel> AddAsync(ICreateUserDto dto, CancellationToken cancellationToken)
     {
         await using var connection = new NpgsqlConnection(_connectionString);
 
@@ -39,10 +37,10 @@ public class UserRepository : IUserRepository
 
         var entity = await connection.QuerySingleAsync<UserEntity>(command);
 
-        return _mapper.ToModel(entity);
+        return entity;
     }
 
-    public async Task<UserModel?> FindByIdAsync(int userId, CancellationToken cancellationToken)
+    public async Task<IUserModel?> FindByIdAsync(int userId, CancellationToken cancellationToken)
     {
         await using var connection = new NpgsqlConnection(_connectionString);
 
@@ -56,10 +54,10 @@ public class UserRepository : IUserRepository
         
         var entity = await connection.QuerySingleOrDefaultAsync<UserEntity>(command);
 
-        return entity == null ? null : _mapper.ToModel(entity);
+        return entity;
     }
 
-    public async Task<UserModel?> FindByLoginAsync(string login, CancellationToken cancellationToken)
+    public async Task<IUserModel?> FindByLoginAsync(string login, CancellationToken cancellationToken)
     {
         await using var connection = new NpgsqlConnection(_connectionString);
 
@@ -73,10 +71,10 @@ public class UserRepository : IUserRepository
 
         var entity = await connection.QuerySingleOrDefaultAsync<UserEntity>(command);
 
-        return entity == null ? null : _mapper.ToModel(entity);
+        return entity;
     }
 
-    public async Task<UserModel[]> FindAllByNameAsync(string name, string surname, CancellationToken cancellationToken)
+    public async Task<IUserModel[]> FindAllByNameAsync(string name, string surname, CancellationToken cancellationToken)
     {
         await using var connection = new NpgsqlConnection(_connectionString);
 
@@ -91,10 +89,10 @@ public class UserRepository : IUserRepository
 
         var entities = await connection.QueryAsync<UserEntity>(command);
 
-        return _mapper.ToModels(entities).ToArray();
+        return entities.ToArray<IUserModel>();
     }
 
-    public async Task<UserModel?> UpdateAsync(UpdateUserDto dto, CancellationToken cancellationToken)
+    public async Task<IUserModel?> UpdateAsync(IUpdateUserDto dto, CancellationToken cancellationToken)
     {
         await using var connection = new NpgsqlConnection(_connectionString);
 
@@ -112,7 +110,7 @@ public class UserRepository : IUserRepository
 
         var entity = await connection.QuerySingleOrDefaultAsync<UserEntity>(command);
 
-        return entity == null ? null : _mapper.ToModel(entity);
+        return entity;
     }
 
     public async Task<int?> DeleteAsync(int userId, CancellationToken cancellationToken)
