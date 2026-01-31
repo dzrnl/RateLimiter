@@ -6,7 +6,7 @@ Event‑driven система контроля RPM для сервисов. Пр
 ## Архитектура и компоненты
 
 - **UserService (gRPC)**  
-  CRUD пользователей в PostgreSQL (Dapper)
+  CRUD пользователей в PostgreSQL (Dapper)  
   Interceptor‑ы:
     - обязательный заголовок `user_id`;
     - проверка блокировки в Redis;
